@@ -45,5 +45,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need access to your calendar so you can book trips to prefectures.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This is used to provide location autocomplete for your calendar events.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>NSLocalNotificationsUsageDescription</key>
+	<string>We need to notify you when the cultural event starts.</string>
 </dict>
 </plist>
