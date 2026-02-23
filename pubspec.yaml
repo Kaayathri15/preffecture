@@ -17,6 +17,7 @@ dependencies:
   latlong2: ^0.9.1 # For geographic coordinates
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.4  # Downgraded slightly to match notifications v17
+  font_awesome_flutter: ^10.12.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -27,3 +28,4 @@ flutter:
   assets:
     - assets/images/4727_Logo_copy.png
     - assets/images/japan_map.png
+    - assets/sponsors/logo.svg

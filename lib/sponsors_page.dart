@@ -6,12 +6,46 @@ class SponsorsPage extends StatelessWidget {
   const SponsorsPage({super.key});
 
   final List<Map<String, String>> sponsors = const [
-    {"name": "Sony", "logo": "https://logo.clearbit.com/sony.com", "url": "https://www.sony.com"},
-    {"name": "Toyota", "logo": "https://logo.clearbit.com/toyota.jp", "url": "https://www.toyota.com"},
-    {"name": "Uniqlo", "logo": "https://logo.clearbit.com/uniqlo.com", "url": "https://www.uniqlo.com"},
-    {"name": "Nintendo", "logo": "https://logo.clearbit.com/nintendo.com", "url": "https://www.nintendo.com"},
-    {"name": "Suntory", "logo": "https://logo.clearbit.com/suntory.com", "url": "https://www.suntory.com"},
-    {"name": "Asics", "logo": "https://logo.clearbit.com/asics.com", "url": "https://www.asics.com"},
+    {
+      "name": "Toho",
+      "logo": "assets/sponsors/logo.svg",
+      "url": "https://www.sony.com",
+    },
+    {
+      "name": "Casio",
+      "logo": "https://logo.clearbit.com/casio.com",
+      "url": "https://www.casio.com",
+    },
+    {
+      "name": "Uniqlo",
+      "logo": "https://logo.clearbit.com/uniqlo.com",
+      "url": "https://www.uniqlo.com",
+    },
+    {
+      "name": "G-Shock",
+      "logo": "https://logo.clearbit.com/g-shock.com",
+      "url": "https://www.g-shock.com",
+    },
+    {
+      "name": "Suntory",
+      "logo": "https://logo.clearbit.com/suntory.com",
+      "url": "https://www.suntory.com",
+    },
+    {
+      "name": "Japan Airline",
+      "logo": "https://logo.clearbit.com/japan-airlines.com",
+      "url": "https://www.japan-airlines.com",
+    },
+    {
+      "name": "Shiseido",
+      "logo": "https://logo.clearbit.com/shiseido.com",
+      "url": "https://www.shiseido.com",
+    },
+    {
+      "name": "Mitsubishi",
+      "logo": "https://logo.clearbit.com/mitsubishi.com",
+      "url": "https://www.mitsubishi.com",
+    },
   ];
 
   Future<void> _launchURL(String urlString) async {
@@ -27,14 +61,15 @@ class SponsorsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        centerTitle: false,
+        title: "Official Sponsors".text.color(gold).bold.make(),
+      ),
+
       // REMOVED AppBar since it's now in MainWrapper
       body: VStack([
-        // Header Section
-        VStack([
-          "Official Partners".text.color(gold).extraBold.xl3.make(),
-          "Supporting the Golden Journey 2026".text.gray500.medium.make(),
-        ]).p16().pOnly(top: 20),
-
         // Grid
         GridView.builder(
           padding: const EdgeInsets.all(16),
@@ -45,7 +80,8 @@ class SponsorsPage extends StatelessWidget {
             childAspectRatio: 1.2, // Slightly wider cards
           ),
           itemCount: sponsors.length,
-          itemBuilder: (context, index) => _buildSponsorCard(sponsors[index], index, gold),
+          itemBuilder: (context, index) =>
+              _buildSponsorCard(sponsors[index], index, gold),
         ).expand(),
       ]),
     );
@@ -66,32 +102,30 @@ class SponsorsPage extends StatelessWidget {
           ),
         );
       },
-      child: VxBox(
-        child: ZStack([
-          // Brand Name background (Subtle)
-          sponsor['name']!
-              .text
-              .uppercase
-              .extraBlack
-              .size(10)
-              .color(Colors.white.withOpacity(0.03))
+      child:
+          VxBox(
+                child: ZStack([
+                  // Brand Name background (Subtle)
+                  sponsor['name']!.text.uppercase.extraBlack
+                      .size(10)
+                      .color(Colors.white.withOpacity(0.03))
+                      .make()
+                      .positioned(bottom: 5, right: 8),
+
+                  // The Logo
+                  Image.network(
+                    sponsor['logo']!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        sponsor['name']!.text.white.bold.makeCentered(),
+                  ).p24(),
+                ]),
+              )
+              .color(Colors.white.withOpacity(0.07)) // Glassy look
+              .roundedLg
+              .border(color: Colors.white.withOpacity(0.1), width: 0.5)
               .make()
-              .positioned(bottom: 5, right: 8),
-          
-          // The Logo
-          Image.network(
-            sponsor['logo']!,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => 
-                sponsor['name']!.text.white.bold.makeCentered(),
-          ).p24(),
-        ]),
-      )
-      .color(Colors.white.withOpacity(0.07)) // Glassy look
-      .roundedLg
-      .border(color: Colors.white.withOpacity(0.1), width: 0.5)
-      .make()
-      .onTap(() => _launchURL(sponsor['url']!)),
+              .onTap(() => _launchURL(sponsor['url']!)),
     );
   }
 }

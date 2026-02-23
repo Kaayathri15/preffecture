@@ -30,8 +30,8 @@ class _PrefectureDetailState extends State<PrefectureDetail>
     {
       "name": "Kampachi",
       "outlets": [
-        {"loc": "Kampachi EQ KL", "url": "https://www.sevenrooms.com/reservations/kampachieqkl"},
-        {"loc": "Kampachi Plaza 33", "url": "https://www.sevenrooms.com/reservations/kampachiplaza33"},
+        {"loc": "Kampachi EQ KL", "url": "https://www.sevenrooms.com/explore/kampachieq/reservations/create/search?tracking=goog&_gl=1*1hqelyo*_gcl_au*MTc2MDg0NjEzMi4xNzcwODc1NjA4*_ga*MTIyOTEyMjAwMS4xNzcwODc1NjA4*_ga_57C6PWPWDL*czE3NzA5NDY1MzQkbzMkZzEkdDE3NzA5NDY1NDAkajU0JGwwJGgw"},
+        {"loc": "Kampachi Plaza 33", "url": "https://www.sevenrooms.com/explore/kampachiplaza33/reservations/create/search?tracking=goog&_gl=1*1ll087j*_gcl_au*MTc2MDg0NjEzMi4xNzcwODc1NjA4*_ga*MTIyOTEyMjAwMS4xNzcwODc1NjA4*_ga_57C6PWPWDL*czE3NzA5NDY1MzQkbzMkZzEkdDE3NzA5NDY1NDAkajU0JGwwJGgw"},
       ],
     },
     {
@@ -276,7 +276,7 @@ Future<void> _handleReminderToggle() async {
         16.widthBox,
         VStack([
           "NOTICE TO BOOK".text.color(color).bold.make(),
-          "Reservations are required. Tap a brand below to book.".text.white.sm.make(),
+          "Reservations are required. Tap a venue below to book.".text.white.sm.make(),
         ]).expand(),
       ]),
     ).p16.border(color: color, width: 1.5).rounded.margin(const EdgeInsets.symmetric(horizontal: 16)).make();

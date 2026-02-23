@@ -1,97 +1,110 @@
-  
-  
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Color gold = const Color(0xFFC5A059);
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends State<ProfilePage> {
+  bool _sendNotifications = true;
+  final Color gold = const Color(0xFFC5A059);
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: VStack([
-        // --- 1. HEADER SECTION (AVATAR & NAME) ---
-        VStack([
-          30.heightBox,
-          VxBox(
-            child: Icon(Icons.person, size: 50, color: gold),
-          )
-          .width(100)
-          .height(100)
-          .roundedFull
-          .border(color: gold, width: 2)
-          .makeCentered(),
-          
-          16.heightBox,
-          "Rothman Haron".text.white.xl2.bold.makeCentered(),
-          "@rothman_travels".text.gray500.sm.makeCentered(),
-          8.heightBox,
-          "Platinum Member".text.color(gold).semiBold.makeCentered(),
-        ]).p24().wFull(context),
+      body: SafeArea(
+        child: VStack([
+          // --- 1. HEADER SECTION ---
+          VStack([
+            30.heightBox,
+            VxBox(child: Icon(Icons.person, size: 50, color: gold))
+                .width(100).height(100).roundedFull
+                .border(color: gold, width: 2).makeCentered(),
+            16.heightBox,
+            "Rothman Haron".text.white.xl2.bold.makeCentered(),
+            "Platinum Member".text.color(gold).semiBold.makeCentered(),
+          ]).p24().wFull(context),
 
-        // --- 2. ACCOUNT INFORMATION SECTION ---
-        "Account Information".text.color(gold).semiBold.make().pOnly(left: 16, bottom: 8),
-        
-        VStack([
-          _buildInfoTile("Username", "Rothman Haron", Icons.alternate_email, gold),
-          Divider(color: Colors.white.withOpacity(0.05), indent: 50),
-          _buildInfoTile("Email Address", "rothman.h@example.com", Icons.email_outlined, gold),
-        ])
-        .box
-        .color(Colors.white.withOpacity(0.05))
-        .roundedLg
-        .width(double.infinity) // Correct: width inside the box config
-        .margin(const EdgeInsets.symmetric(horizontal: 16))
-        .make(),
+          // --- 2. PERSONAL DETAILS ---
+          "Personal Details".text.color(gold).semiBold.make().pOnly(left: 16, bottom: 8),
+          VStack([
+            _buildInfoTile("First Name", "Rothman", Icons.person_outline),
+            _divider(),
+            _buildInfoTile("Last Name", "Haron", Icons.person_outline),
+            _divider(),
+            _buildInfoTile("Email Address", "rothman.h@example.com", Icons.email_outlined),
+            _divider(),
+            _buildPhoneTile("+60", "12-345 6789"),
+            _divider(),
+            _buildInfoTile("Nationality", "Malaysian", Icons.public_outlined),
+            _divider(),
+            _buildInfoTile("Gender", "Male", Icons.wc_outlined),
+          ])
+          .box.color(Colors.white.withOpacity(0.05)).roundedLg
+          .margin(const EdgeInsets.symmetric(horizontal: 16)).make(),
 
-        24.heightBox,
+          24.heightBox,
 
-        // --- 3. STATS SECTION ---
-        HStack([
-          _buildStatItem("27", "Prefectures", gold),
-          _buildStatItem("10,510", "Total Points", gold),
-          _buildStatItem("36", "Vouchers", gold),
-        ], alignment: MainAxisAlignment.spaceEvenly)
-        .box
-        .border(color: gold.withOpacity(0.3))
-        .roundedLg
-        .p16
-        .width(double.infinity)
-        .margin(const EdgeInsets.symmetric(horizontal: 16))
-        .make(),
+          // --- 3. STATS SECTION (Positioned exactly as requested) ---
+          HStack([
+            _buildStatItem("27", "Prefectures", gold),
+            _buildStatItem("3,000", "Total Points", gold),
+            _buildStatItem("0", "Vouchers", gold),
+          ], alignment: MainAxisAlignment.spaceEvenly)
+          .box
+          .border(color: gold.withOpacity(0.3))
+          .roundedLg
+          .p16
+          .width(double.infinity)
+          .margin(const EdgeInsets.symmetric(horizontal: 16))
+          .make(),
 
-        24.heightBox,
+          24.heightBox,
 
-        // --- 4. SETTINGS & LOGOUT ---
-        VStack([
-          _buildMenuItem(Icons.settings, "Privacy Settings", gold),
-          
+          // --- 4. PRIVACY & SECURITY ---
+          "Privacy & Security".text.color(gold).semiBold.make().pOnly(left: 16, bottom: 8),
+          VStack([
+            _buildActionItem(Icons.lock_outline, "Change Password", () {
+              print("Navigate to Change Password");
+            }),
+            _divider(),
+            HStack([
+              Icon(Icons.notifications_none_outlined, color: gold, size: 22),
+              20.widthBox,
+              "Push Notifications".text.white.lg.make().expand(),
+              Switch(
+                value: _sendNotifications,
+                activeColor: gold,
+                onChanged: (val) => setState(() => _sendNotifications = val),
+              ),
+            ]).pSymmetric(h: 16, v: 8),
+          ])
+          .box.color(Colors.white.withOpacity(0.05)).roundedLg
+          .margin(const EdgeInsets.symmetric(horizontal: 16)).make(),
+
           32.heightBox,
-          
-          // Logout Button
+
+          // --- 5. LOGOUT ---
           "Logout".text.red500.bold.makeCentered()
-              .box
-              .border(color: Colors.red.withOpacity(0.3))
-              .roundedLg
-              .p12
-              .width(double.infinity)
-              .make()
-              .onTap(() {
-                // Add your logout logic here
-                print("User Logged Out");
-              }),
-        ]).p16(),
-        
-        20.heightBox,
-      ]).scrollVertical(),
+              .box.border(color: Colors.red.withOpacity(0.3)).roundedLg.p12
+              .margin(const EdgeInsets.symmetric(horizontal: 16)).make()
+              .onTap(() => print("User Logged Out")),
+          
+          40.heightBox,
+        ]).scrollVertical(),
+      ),
     );
   }
 
-  // Helper for Email/Username Tiles
-  Widget _buildInfoTile(String label, String value, IconData icon, Color gold) {
+  // --- HELPERS ---
+
+  Widget _divider() => Divider(color: Colors.white.withOpacity(0.05), indent: 50, height: 1);
+
+  Widget _buildInfoTile(String label, String value, IconData icon) {
     return HStack([
       Icon(icon, color: gold.withOpacity(0.7), size: 20),
       16.widthBox,
@@ -102,27 +115,36 @@ class ProfilePage extends StatelessWidget {
     ]).p12();
   }
 
-  // Helper for Stats
-  Widget _buildStatItem(String value, String label, Color gold) {
-    return VStack([
-      value.text.white.xl.bold.make(),
-      label.text.gray500.size(10).make(),
-    ], crossAlignment: CrossAxisAlignment.center);
+  Widget _buildPhoneTile(String code, String number) {
+    return HStack([
+      Icon(Icons.phone_outlined, color: gold.withOpacity(0.7), size: 20),
+      16.widthBox,
+      VStack([
+        "Phone Number".text.gray500.size(10).make(),
+        HStack([
+          code.text.color(gold).bold.make()
+              .box.p4.roundedSM.color(Colors.white.withOpacity(0.1)).make(),
+          12.widthBox,
+          number.text.white.lg.semiBold.make(),
+        ]),
+      ]),
+    ]).p12();
   }
 
-  // Helper for Menu Items
-  Widget _buildMenuItem(IconData icon, String title, Color gold) {
+  Widget _buildActionItem(IconData icon, String title, VoidCallback onTap) {
     return HStack([
       Icon(icon, color: gold, size: 22),
       20.widthBox,
       title.text.white.lg.make().expand(),
       const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 14),
-    ])
-    .p16()
-    .box
-    .border(color: Colors.white10)
-    .withRounded(value: 12)
-    .margin(const EdgeInsets.only(bottom: 12))
-    .make();
+    ]).p16().onTap(onTap);
+  }
+
+  // Corrected Helper with gold parameter and CrossAxisAlignment fix
+  Widget _buildStatItem(String value, String label, Color goldColor) {
+    return VStack([
+      value.text.white.xl.bold.make(),
+      label.text.gray500.size(10).make(),
+    ], crossAlignment: CrossAxisAlignment.center);
   }
 }

@@ -7,6 +7,7 @@ import 'package:preffecture/report_page.dart';
 import 'package:preffecture/profile_page.dart';
 import 'package:preffecture/PrefectureRegionPage.dart';
 import 'package:preffecture/reward_page.dart';
+import 'package:preffecture/auth_page.dart';
 
 import 'dart:async';
 
@@ -102,7 +103,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (status == AnimationStatus.completed) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainWrapper()),
+          MaterialPageRoute(builder: (context) => const AuthPage()), // Go to Login first
         );
       }
     });
@@ -212,25 +213,25 @@ PrefectureRegionPage(key: ValueKey('region_page_$_currentIndex')),
         selectedItemColor: gold,
         unselectedItemColor: Colors.white24,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Preffectures"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: ""),
           // BottomNavigationBarItem(
           //   icon: Icon(Icons.campaign),
           //   label: "Promotion",
           // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.handshake),
-            label: "Sponsors",
+            label: "",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            label: "Report",
+            label: "",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events),
-            label: "Reward",
+            label: "",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
         ],
       ),
     );
@@ -285,10 +286,15 @@ class _PrefectureHomeState extends State<PrefectureHome> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter active prefectures for the banner
+  final List<Map<String, dynamic>> activePrefectures = 
+      _allPrefectures.where((p) => p["status"] == "active").toList();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: VStack([
-        // 1. Banner Carousel
+       // 1. Updated Banner Carousel
+      if (activePrefectures.isNotEmpty)
         CarouselSlider(
           options: CarouselOptions(
             height: 180,
@@ -296,8 +302,16 @@ class _PrefectureHomeState extends State<PrefectureHome> {
             enlargeCenterPage: true,
             viewportFraction: 0.9,
           ),
-          items: [1, 2, 3].map((i) => _buildBannerCard(i)).toList(),
-        ).pOnly(top: 10, bottom: 20),
+          items: activePrefectures.map((prefecture) {
+            return _buildBannerCard(prefecture).onTap(() {
+              // Navigate to the detail page
+              widget.onSelect(prefecture);
+            });
+          }).toList(),
+        ).pOnly(top: 10, bottom: 20)
+      else
+        // Fallback if no active prefectures exist
+        const SizedBox(height: 10),
 
         // 2. Status Filters (Centered horizontally)
         HStack([
@@ -335,19 +349,37 @@ class _PrefectureHomeState extends State<PrefectureHome> {
     );
   }
 
-  Widget _buildBannerCard(int index) {
-    return VxBox(child: "Promotion $index".text.white.bold.make().centered())
-        .bgImage(
-          const DecorationImage(
-            image: NetworkImage("https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e"),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
-          ),
-        )
-        .rounded
-        .border(color: gold)
-        .make();
-  }
+   Widget _buildBannerCard(Map<String, dynamic> prefecture) {
+  return VxBox(
+    child: Align(
+      alignment: Alignment.bottomLeft,
+      child: VStack([
+        "".text.red600.extraBold.xs.make(),
+        (prefecture['name']?.toString().toUpperCase() ?? "")
+            .text
+            .color(gold)
+            .xl2
+            .extraBold
+            .make(),
+        (prefecture['jp']?.toString() ?? "").text.white.sm.make(),
+      ]).p16(),
+    ),
+  )
+      .bgImage(
+        DecorationImage(
+          image: NetworkImage(prefecture['img'] ?? ''),
+          fit: BoxFit.cover,
+          colorFilter: const ColorFilter.mode(Colors.black45, BlendMode.darken),
+        ),
+      )
+      .rounded
+      .border(color: gold, width: 0.5)
+      .make() // Turns the VxBox into a Widget
+      .onTap(() {
+        // Adding the '!' fixes the "can't be unconditionally invoked" error
+        widget.onSelect(prefecture); 
+      });
+}
 
   Widget _filterChip(String status, {String? label}) {
     bool isSelected = _selectedStatus == status;
