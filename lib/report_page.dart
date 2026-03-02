@@ -15,7 +15,6 @@ class Participant {
     this.isUser = false,
   });
 
-  // 1 Prefecture = 2000 Points
   int get points => prefectures * 2000;
 }
 
@@ -30,9 +29,9 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
   final Color gold = const Color(0xFFC5A059);
   final Color red = const Color(0xFFE50914);
 
-  // State variable for filtering
   bool _sortByMostPrefectures = true;
 
+  // Participant list remains unchanged as requested
   final List<Participant> _participants = [
     Participant(name: "Takeshi K.", prefectures: 20),
     Participant(name: "Rothman Haron", prefectures: 19, isUser: true),
@@ -40,6 +39,31 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
     Participant(name: "Yu Ying Fong", prefectures: 9),
     Participant(name: "John Labu", prefectures: 5),
   ];
+
+  // Data mapping for specific prefectures to match PrefectureDetail requirements
+  final Map<String, Map<String, dynamic>> _prefectureData = {
+    "Hokkaido": {
+      "name": "Hokkaido",
+      "region": "Hokkaido",
+      "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg",
+      "jp": "北海道",
+      "status": "active"
+    },
+    "Tokyo": {
+      "name": "Tokyo",
+      "region": "Kantō",
+      "img": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf",
+      "jp": "東京都",
+      "status": "active"
+    },
+    "Sendai": {
+      "name": "Sendai",
+      "region": "Tōhoku",
+      "img": "https://images.unsplash.com/photo-1542931287-023b922fa89b?q=80&w=800",
+      "jp": "仙台市",
+      "status": "active"
+    }
+  };
 
   List<Participant> get _sortedParticipants {
     List<Participant> list = List.from(_participants);
@@ -51,12 +75,12 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
     return list;
   }
 
-  void _navigateToDetail(BuildContext context, String name, String imgUrl) {
+  void _navigateToDetail(BuildContext context, Map<String, dynamic> data) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PrefectureDetail(
-          data: {'name': name, 'img': imgUrl},
+          data: data,
           onBack: () => Navigator.pop(context),
         ),
       ),
@@ -69,24 +93,21 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        centerTitle: false,
-        title: "Prefecture Coverage".text.color(gold).bold.make(),
-      ),
       body: VStack([
-        "Tap a red marker to explore the prefecture".text.gray500.italic
-            .size(10)
+        "Tap a red marker to explore the prefecture"
+            .text
+            .gray500
+            .italic
+            .size(12)
             .make()
-            .pOnly(left: 16, bottom: 4),
+            .pOnly(left: 16, bottom: 4, top: 16),
 
         // Map Section
         SizedBox(
           height: 400,
           child: FlutterMap(
             options: MapOptions(
-              initialCenter: LatLng(36.2048, 138.2529),
+              initialCenter: const LatLng(36.2048, 138.2529),
               initialZoom: 5.0,
               minZoom: 4.5,
               maxZoom: 7.0,
@@ -102,31 +123,26 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
               ),
               MarkerLayer(
                 markers: [
-                  _buildMapMarker(context, LatLng(43.0641, 141.3469), "Hokkaido", "https://images.unsplash.com/photo-1590483739741-418088009b0a?q=80&w=800"),
-                  _buildMapMarker(context, LatLng(38.2682, 140.8694), "Sendai", "https://images.unsplash.com/photo-1542931287-023b922fa89b?q=80&w=800"),
-                  _buildMapMarker(context, LatLng(35.6762, 139.6503), "Tokyo", "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800"),
-                  _buildMapMarker(context, LatLng(34.6937, 135.5023), "Osaka", "https://images.unsplash.com/photo-1590559899731-a3828df9a954?q=80&w=800"),
-                  _buildMapMarker(context, LatLng(33.5904, 130.4017), "Fukuoka", "https://images.unsplash.com/photo-1571212411030-4e448b36878b?q=80&w=800"),
+                  _buildMapMarker(context, const LatLng(43.0641, 141.3469), "Hokkaido"),
+                  _buildMapMarker(context, const LatLng(38.2682, 140.8694), "Sendai"),
+                  _buildMapMarker(context, const LatLng(35.6762, 139.6503), "Tokyo"),
                 ],
               ),
             ],
           ),
         ).box.border(color: Colors.white10).withRounded(value: 16).clip(Clip.antiAlias).make().p16(),
 
-        // Ranking Title & Sort Filter
         HStack([
           "Top 5 Participants".text.color(gold).semiBold.make(),
           const Spacer(),
-          // Toggle sorting
           TextButton.icon(
             onPressed: () => setState(() => _sortByMostPrefectures = !_sortByMostPrefectures),
             icon: Icon(Icons.sort, color: gold, size: 16),
             label: (_sortByMostPrefectures ? "By Prefecture" : "By Points")
-                .text.color(gold).size(10).make(),
+                .text.color(gold).size(12).make(),
           ),
         ]).pSymmetric(h: 16, v: 8),
 
-        // Ranking List
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -139,19 +155,24 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
     );
   }
 
-  Marker _buildMapMarker(BuildContext context, LatLng point, String name, String imgUrl) {
+  Marker _buildMapMarker(BuildContext context, LatLng point, String key) {
     return Marker(
       point: point,
       width: 40,
       height: 40,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => _navigateToDetail(context, name, imgUrl),
+        onTap: () {
+          // Retrieves the full data map based on the key
+          final data = _prefectureData[key] ?? {"name": key, "img": "https://via.placeholder.com/800"};
+          _navigateToDetail(context, data);
+        },
         child: Center(
-          child: VxBox().roundedFull
+          child: VxBox()
+              .roundedFull
               .color(red)
               .border(color: Colors.white.withOpacity(0.5), width: 1.5)
-              .size(10, 10)
+              .size(12, 12)
               .make()
               .shimmer(
                 primaryColor: red,
@@ -168,42 +189,34 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
 
     return VxBox(
       child: HStack([
-        // Rank Indicator
         VxBox(child: (index + 1).text.white.bold.xl.makeCentered())
-            .width(50).height(50)
+            .width(50)
+            .height(50)
             .color(isFirst ? red : gold)
-            .withRounded(value: 10).make(),
-        
+            .withRounded(value: 10)
+            .make(),
         15.widthBox,
-        
-        // Name and Statistics
         VStack([
           HStack([
             person.name.text.white.bold.lg.make(),
             if (person.isUser) " (You)".text.gray500.sm.make(),
           ]),
-          // Always show this secondary info
-          "Participant Status: Active".text.gray500.size(9).make(),
+          "Status: Active Journey".text.gray500.size(10).make(),
         ]).expand(),
-        
-        // DYNAMIC DATA DISPLAY
         VStack([
-          if (_sortByMostPrefectures) 
-            // Show Prefecture Count
+          if (_sortByMostPrefectures)
             person.prefectures.toString().text.color(gold).semiBold.xl2.make()
-          else 
-            // Show Points
+          else
             person.points.toString().numCurrency.text.color(gold).semiBold.xl.make(),
-          
           (_sortByMostPrefectures ? "Prefectures" : "Points")
               .text.gray500.size(10).make(),
         ], crossAlignment: CrossAxisAlignment.end),
       ]).p12(),
     )
-    .width(double.infinity)
-    .border(color: isFirst ? gold.withOpacity(0.6) : Colors.white10, width: 1)
-    .withRounded(value: 12)
-    .margin(const EdgeInsets.only(bottom: 12))
-    .make();
+        .width(double.infinity)
+        .border(color: isFirst ? gold.withOpacity(0.6) : Colors.white10, width: 1)
+        .withRounded(value: 12)
+        .margin(const EdgeInsets.only(bottom: 12))
+        .make();
   }
 }

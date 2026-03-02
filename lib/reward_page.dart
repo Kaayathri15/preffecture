@@ -18,7 +18,7 @@ class RewardsPage extends StatelessWidget {
         backgroundColor: Colors.black,
         elevation: 0,
         centerTitle: false,
-        title: "Exclusive Rewards".text.color(gold).bold.make(),
+        // title: "Exclusive Rewards".text.color(gold).bold.make(),
       ),
       body: VStack([
         _buildPointsHeader(),
@@ -41,7 +41,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,200",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/2020-01-13_blue-lounge.jpg",
           },
           {
             "shop": "Etoile",
@@ -49,16 +49,8 @@ class RewardsPage extends StatelessWidget {
             "pts": "800",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=500",
-          },
-          {
-            "shop": "Global",
-            "deal": "Premium Seafood Platter",
-            "pts": "4,500",
-            "tag": "",
-            "bg":
-                "https://images.unsplash.com/photo-1551731359-2b34fc5d0d26?q=80&w=500",
-          },
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2023/05/2023-05-16_Etoile-poke-salmon-scaled.jpg",
+          }
         ], context),
         _buildHorizontalList([
           {
@@ -75,7 +67,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,200",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/2020-01-13_blue-lounge.jpg",
           },
           {
             "shop": "Ètoile",
@@ -83,7 +75,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "800",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2023/05/2023-05-16_Etoile-poke-salmon-scaled.jpg",
           },
         ], context),
 
@@ -97,7 +89,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,500",
             "tag": "",
             "bg":
-                "https://www.kampachi.com.my/images/promotions/Cny2025_Promo.jpg",
+                "https://www.kampachi.com.my/images/promotions/2026IFTAR_PROMO.jpg",
           },
           {
             "shop": "Kampachi",
@@ -105,7 +97,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "2,500",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=500",
+                "https://www.kampachi.com.my/images/promotions/Cny2025_Promo.jpg",
           },
           {
             "shop": "Kampachi",
@@ -123,7 +115,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,500",
             "tag": "",
             "bg":
-                "https://www.kampachi.com.my/images/promotions/Cny2025_Promo.jpg",
+                "https://www.kampachi.com.my/images/promotions/2026IFTAR_PROMO.jpg",
           },
           {
             "shop": "Kampachi",
@@ -131,7 +123,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "2,500",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=500",
+                "https://www.kampachi.com.my/images/promotions/Cny2025_Promo.jpg",
           },
         ], context),
 
@@ -160,7 +152,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "500",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?q=80&w=500",
+                "https://static.wixstatic.com/media/b7a502_4acf53bf6984439ca5b3e67da2980722~mv2.jpg/v1/fill/w_414,h_297,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IPPUDO%20Hakata-Style%20Gyoza.jpg",
           },
           {
             "shop": "Ippudo",
@@ -178,7 +170,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,250",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=500",
+                "https://static.wixstatic.com/media/b7a502_3aa4685e1a4242dd9c3998c7c880cb2b~mv2.png/v1/crop/x_227,y_889,w_2373,h_2361/fill/w_600,h_597,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IPPUDO%20Kuro.png",
           },
           {
             "shop": "Maisen",
@@ -186,7 +178,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,800",
             "tag": "",
             "bg":
-                "https://images.pexels.com/photos/29160666/pexels-photo-29160666.jpeg",
+                "https://static.wixstatic.com/media/00fa66_725ba1f6f9484a869cedeee3a6bddc48~mv2.jpg/v1/fill/w_963,h_734,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/00fa66_725ba1f6f9484a869cedeee3a6bddc48~mv2.jpg",
           },
           {
             "shop": "Ippudo",
@@ -194,7 +186,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "500",
             "tag": "",
             "bg":
-                "https://images.Premiumunsplash.com/photo-1541696432-82c6da8ce7bf?q=80&w=500",
+                "https://static.wixstatic.com/media/b7a502_4acf53bf6984439ca5b3e67da2980722~mv2.jpg/v1/fill/w_414,h_297,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IPPUDO%20Hakata-Style%20Gyoza.jpg",
           },
         ], context),
 
@@ -207,7 +199,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "4,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/2019-10-03_eq_sanctum-facial_op.jpg",
           },
           {
             "shop": "ROOM",
@@ -215,7 +207,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "15,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/Premier-King.jpg",
           },
           {
             "shop": "Gym",
@@ -223,25 +215,17 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500",
-          },
-          {
-            "shop": "Lounge",
-            "deal": "Afternoon Tea Set",
-            "pts": "2,200",
-            "tag": "",
-            "bg":
-                "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?q=80&w=500",
-          },
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2020/03/Sanctum-Fitness-Studio.jpg",
+          }
         ], context),
         _buildHorizontalList([
-          {
+        {
             "shop": "Spa",
             "deal": "60-min Massage",
             "pts": "4,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/2019-10-03_eq_sanctum-facial_op.jpg",
           },
           {
             "shop": "ROOM",
@@ -249,7 +233,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "15,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2019/04/Premier-King.jpg",
           },
           {
             "shop": "Gym",
@@ -257,7 +241,7 @@ class RewardsPage extends StatelessWidget {
             "pts": "1,000",
             "tag": "",
             "bg":
-                "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500",
+                "https://www.eqkualalumpur.equatorial.com/wp-content/uploads/sites/10/2020/03/Sanctum-Fitness-Studio.jpg",
           },
         ], context),
 

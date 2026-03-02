@@ -26,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 .border(color: gold, width: 2).makeCentered(),
             16.heightBox,
             "Rothman Haron".text.white.xl2.bold.makeCentered(),
-            "Platinum Member".text.color(gold).semiBold.makeCentered(),
+            "".text.color(gold).semiBold.makeCentered(),
           ]).p24().wFull(context),
 
           // --- 2. PERSONAL DETAILS ---

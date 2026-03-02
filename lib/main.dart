@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:preffecture/prefecture_detail.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:preffecture/sponsors_page.dart'; // Change 'preffecture' to your project name
+import 'package:preffecture/prefecture_detail.dart';
+import 'package:preffecture/sponsors_page.dart';
 import 'package:preffecture/report_page.dart';
 import 'package:preffecture/profile_page.dart';
 import 'package:preffecture/PrefectureRegionPage.dart';
 import 'package:preffecture/reward_page.dart';
 import 'package:preffecture/auth_page.dart';
-
 import 'dart:async';
 
 void main() => runApp(const PrefectureApp());
@@ -40,8 +38,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scale;
   late Animation<double> _fade;
@@ -57,24 +54,12 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _scale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 0.0,
-          end: 1.2,
-        ).chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 20,
-      ),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.2).chain(CurveTween(curve: Curves.elasticOut)), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.1), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 1.1, end: 1.0), weight: 10),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 30),
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.0,
-          end: 2.5,
-        ).chain(CurveTween(curve: Curves.easeInCirc)),
-        weight: 20,
-      ),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 2.5).chain(CurveTween(curve: Curves.easeInCirc)), weight: 20),
     ]).animate(_controller);
 
     _fade = TweenSequence<double>([
@@ -101,10 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AuthPage()), // Go to Login first
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
       }
     });
   }
@@ -129,10 +111,7 @@ class _SplashScreenState extends State<SplashScreen>
               scale: _scale.value,
               child: Opacity(
                 opacity: _fade.value,
-                child: Image.asset(
-                  "assets/images/4727_Logo_copy.png",
-                  width: 220,
-                ),
+                child: Image.asset("assets/images/4727_Logo_copy.png", width: 220),
               ),
             ),
           ),
@@ -142,8 +121,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// --- 2. MAIN WRAPPER (Handles Navigation State) ---
-
+// --- 2. MAIN WRAPPER ---
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
 
@@ -156,24 +134,23 @@ class _MainWrapperState extends State<MainWrapper> {
   final Color gold = const Color(0xFFC5A059);
   final Color red = const Color(0xFFE50914);
 
-  Map<String, dynamic>? _selectedPrefecture;
+  String _getAppBarTitle() {
+    switch (_currentIndex) {
+      case 0: return "Experiences & Highlights";
+      case 1: return "Prefectures";
+      case 2: return "Partners";
+      case 3: return "Journey Tracker";
+      case 4: return "Rewards";
+      case 5: return "Profile";
+      default: return "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Logic for Home Tab (Prefecture List vs Detail)
-    Widget homeTabContent = _selectedPrefecture == null
-        ? PrefectureHome(
-            onSelect: (data) => setState(() => _selectedPrefecture = data),
-          )
-        : PrefectureDetail(
-            data: _selectedPrefecture!,
-            onBack: () => setState(() => _selectedPrefecture = null),
-          );
-
-    // 2. The List of Pages
     final List<Widget> _pages = [
-      homeTabContent,
-PrefectureRegionPage(key: ValueKey('region_page_$_currentIndex')),
+      const PrefectureHome(),
+      PrefectureRegionPage(key: ValueKey('region_page_$_currentIndex')),
       const SponsorsPage(),
       const ReportPage(),
       const RewardsPage(),
@@ -181,7 +158,6 @@ PrefectureRegionPage(key: ValueKey('region_page_$_currentIndex')),
     ];
 
     return Scaffold(
-      // --- PERSISTENT LOGO TOP BAR ---
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
@@ -189,59 +165,39 @@ PrefectureRegionPage(key: ValueKey('region_page_$_currentIndex')),
         title: HStack([
           "47で27".text.color(red).bold.xl3.make(),
           20.widthBox,
-          "The Golden Journey".text.color(gold).semiBold.lg.make(),
+          _getAppBarTitle().text.color(gold).semiBold.lg.make(),
         ]).pOnly(left: 4),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Divider(color: gold.withOpacity(0.5), height: 1),
         ),
       ),
-
       body: IndexedStack(index: _currentIndex, children: _pages),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            // Optional: Reset detail view if user clicks Home tab icon
-            if (index == 0) _selectedPrefecture = null;
-          });
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.black,
         selectedItemColor: gold,
         unselectedItemColor: Colors.white24,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: ""),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.campaign),
-          //   label: "Promotion",
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.handshake),
-            label: "",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: "",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
-            label: "",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Explore"),
+          BottomNavigationBarItem(icon: Icon(Icons.handshake), label: "Sponsors"),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: "Reports"),
+          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Rewards"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );
   }
 }
 
-// --- 3. HOME PAGE (CONTENT ONLY) ---
+// --- 3. HOME PAGE (FULL DETAIL SLIDER) ---
 class PrefectureHome extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSelect;
-  const PrefectureHome({super.key, required this.onSelect});
+  const PrefectureHome({super.key});
 
   @override
   State<PrefectureHome> createState() => _PrefectureHomeState();
@@ -249,268 +205,131 @@ class PrefectureHome extends StatefulWidget {
 
 class _PrefectureHomeState extends State<PrefectureHome> {
   final Color gold = const Color(0xFFC5A059);
-  final Color red = const Color(0xFFE50914);
-  String _selectedStatus = "All";
+  late PageController _pageController;
+  Timer? _autoSlideTimer;
 
-  final List<Map<String, dynamic>> _allPrefectures = [
+  // Actual Data
+  final List<Map<String, dynamic>> _activePrefectures = [
     {"name": "Hokkaido", "region": "Hokkaido", "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg", "jp": "北海道", "status": "active"},
-    {"name": "Aomori", "region": "Tōhoku", "img": "https://images.unsplash.com/photo-1545569341-9eb8b30979d9", "jp": "青森県", "status": "active"},
-    {"name": "Yamagata", "region": "Tōhoku", "img": "https://images.pexels.com/photos/10232969/pexels-photo-10232969.jpeg", "jp": "山形県", "status": "coming_soon"},
-    {"name": "Iwate", "region": "Tōhoku", "img": "https://images.pexels.com/photos/12156225/pexels-photo-12156225.jpeg", "jp": "岩手県", "status": "coming_soon"},
-    {"name": "Akita", "region": "Tōhoku", "img": "https://images.pexels.com/photos/31365953/pexels-photo-31365953.jpeg", "jp": "秋田県", "status": "past"},
-    {"name": "Miyagi", "region": "Tōhoku", "img": "https://images.pexels.com/photos/17052297/pexels-photo-17052297.jpeg", "jp": "宮城県", "status": "past"},
-    {"name": "Fukushima", "region": "Tōhoku", "img": "https://images.pexels.com/photos/13841247/pexels-photo-13841247.jpeg", "jp": "福島県", "status": "past"},
     {"name": "Tokyo", "region": "Kantō", "img": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf", "jp": "東京都", "status": "active"},
     {"name": "Chiba", "region": "Kantō", "img": "https://images.pexels.com/photos/31461527/pexels-photo-31461527.jpeg", "jp": "千葉県", "status": "active"},
-    {"name": "Kanagawa", "region": "Kantō", "img": "https://images.pexels.com/photos/8536359/pexels-photo-8536359.jpeg", "jp": "神奈川県", "status": "coming_soon"},
-    {"name": "Saitama", "region": "Kantō", "img": "https://images.pexels.com/photos/20547197/pexels-photo-20547197.jpeg", "jp": "埼玉県", "status": "coming_soon"},
-    {"name": "Ibaraki", "region": "Kantō", "img": "https://images.pexels.com/photos/34885502/pexels-photo-34885502.jpeg", "jp": "茨城県", "status": "past"},
-    {"name": "Tochigi", "region": "Kantō", "img": "https://images.unsplash.com/photo-1622383563227-04401ab4e5ea", "jp": "栃木県", "status": "past"},
+    {"name": "Hokkaido", "region": "Hokkaido", "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg", "jp": "北海道", "status": "soon"},
+
   ];
 
-  List<Map<String, dynamic>> _displayList = [];
+  // Infinite loop constant
+  final int _infinitePageCount = 10000;
 
   @override
   void initState() {
     super.initState();
-    _displayList = List.from(_allPrefectures);
+    // Start the controller in the middle of the large number so the user can swipe left immediately
+    int initialPage = (_infinitePageCount ~/ 2) - ((_infinitePageCount ~/ 2) % _activePrefectures.length);
+    _pageController = PageController(initialPage: initialPage);
+    _startAutoSlide();
   }
 
-  void _applyFilters() {
-    setState(() {
-      _displayList = _allPrefectures.where((p) {
-        return _selectedStatus == "All" || p["status"] == _selectedStatus;
-      }).toList();
+  @override
+  void dispose() {
+    _autoSlideTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoSlide() {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 8), (timer) {
+      if (_pageController.hasClients) {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOutQuart, // Smooth book-like transition
+        );
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Filter active prefectures for the banner
-  final List<Map<String, dynamic>> activePrefectures = 
-      _allPrefectures.where((p) => p["status"] == "active").toList();
-
     return Scaffold(
       backgroundColor: Colors.black,
-      body: VStack([
-       // 1. Updated Banner Carousel
-      if (activePrefectures.isNotEmpty)
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 180,
-            autoPlay: true,
-            enlargeCenterPage: true,
-            viewportFraction: 0.9,
-          ),
-          items: activePrefectures.map((prefecture) {
-            return _buildBannerCard(prefecture).onTap(() {
-              // Navigate to the detail page
-              widget.onSelect(prefecture);
-            });
-          }).toList(),
-        ).pOnly(top: 10, bottom: 20)
-      else
-        // Fallback if no active prefectures exist
-        const SizedBox(height: 10),
-
-        // 2. Status Filters (Centered horizontally)
-        HStack([
-          _filterChip("All"),
-          _filterChip("active", label: "Active"),
-          _filterChip("past", label: "Past"),
-          _filterChip("coming_soon", label: "Soon"),
-        ]).centered().pSymmetric(v: 10),
-
-        20.heightBox,
-
-        // 3. Grid View
-        _displayList.isEmpty
-            ? "No results found".text.gray500.makeCentered().p20()
-            : GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.85,
-                ),
-                itemCount: _displayList.length,
-                itemBuilder: (context, index) => HoverCard(
-                  data: _displayList[index],
-                  gold: gold,
-                  red: red,
-                  onTap: () => widget.onSelect(_displayList[index]),
-                ),
-              ),
-        40.heightBox,
-      ]).scrollVertical(),
-    );
-  }
-
-   Widget _buildBannerCard(Map<String, dynamic> prefecture) {
-  return VxBox(
-    child: Align(
-      alignment: Alignment.bottomLeft,
-      child: VStack([
-        "".text.red600.extraBold.xs.make(),
-        (prefecture['name']?.toString().toUpperCase() ?? "")
-            .text
-            .color(gold)
-            .xl2
-            .extraBold
-            .make(),
-        (prefecture['jp']?.toString() ?? "").text.white.sm.make(),
-      ]).p16(),
-    ),
-  )
-      .bgImage(
-        DecorationImage(
-          image: NetworkImage(prefecture['img'] ?? ''),
-          fit: BoxFit.cover,
-          colorFilter: const ColorFilter.mode(Colors.black45, BlendMode.darken),
-        ),
-      )
-      .rounded
-      .border(color: gold, width: 0.5)
-      .make() // Turns the VxBox into a Widget
-      .onTap(() {
-        // Adding the '!' fixes the "can't be unconditionally invoked" error
-        widget.onSelect(prefecture); 
-      });
-}
-
-  Widget _filterChip(String status, {String? label}) {
-    bool isSelected = _selectedStatus == status;
-    return (label ?? status).text.xs
-        .color(isSelected ? Colors.black : Colors.white)
-        .make()
-        .box
-        .color(isSelected ? gold : Colors.white10)
-        .roundedLg
-        .padding(const EdgeInsets.symmetric(horizontal: 16, vertical: 10))
-        .make()
-        .onTap(() {
-          setState(() => _selectedStatus = status);
-          _applyFilters();
-        })
-        .pOnly(right: 8);
-  }
-}
-
-// --- 4. HOVER CARD ---
-class HoverCard extends StatefulWidget {
-  final Map<String, dynamic> data;
-  final Color gold;
-  final Color red;
-  final VoidCallback onTap; // Added callback
-  const HoverCard({
-    super.key,
-    required this.data,
-    required this.gold,
-    required this.red,
-    required this.onTap,
-  });
-  @override
-  State<HoverCard> createState() => _HoverCardState();
-}
-
-class _HoverCardState extends State<HoverCard> {
-  bool _isHovered = false;
-  @override
-  Widget build(BuildContext context) {
-    String status = widget.data['status'];
-    bool isSoon = status == "coming_soon";
-    bool isPast = status == "past";
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: Stack(
+      body: Stack(
         children: [
-          VxBox()
-              .bgImage(
-                DecorationImage(
-                  image: NetworkImage(widget.data['img']),
-                  fit: BoxFit.cover,
-                  colorFilter: isSoon
-                      ? const ColorFilter.mode(
-                          Colors.grey,
-                          BlendMode.saturation,
-                        )
-                      : null,
-                ),
-              )
-              .rounded
-              .border(
-                color: isSoon ? Colors.white10 : widget.gold.withOpacity(0.3),
-              )
-              .make(),
-          AnimatedOpacity(
-            duration: 200.milliseconds,
-            opacity: _isHovered ? 0.0 : 1.0,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.9)],
-                  stops: const [0.6, 1.0],
-                ),
+          PageView.builder(
+            controller: _pageController,
+            itemCount: _infinitePageCount,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: (_) {
+              // Reset timer on manual swipe to prevent double-sliding
+              _autoSlideTimer?.cancel();
+              _startAutoSlide();
+            },
+            itemBuilder: (context, index) {
+              // Calculate actual data index using modulo
+              final actualIndex = index % _activePrefectures.length;
+              return PrefectureDetail(
+                data: _activePrefectures[actualIndex],
+                isStandalone: true,
+              );
+            },
+          ),
+          
+          // LEFT ARROW (Visible with background)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _buildNavButton(
+              icon: Icons.arrow_back_ios_new,
+              onPressed: () => _pageController.previousPage(
+                duration: 800.milliseconds,
+                curve: Curves.easeInOutQuart,
               ),
             ),
           ),
-          if (isSoon)
-            VxBox(
-              child: const Icon(
-                Icons.lock_outline,
-                color: Colors.white,
-              ).centered(),
-            ).color(Colors.black45).rounded.make(),
-          Positioned(
-            top: 8,
-            left: 8,
-            child:
-                (isSoon
-                        ? "SOON"
-                        : isPast
-                        ? "PAST"
-                        : widget.data['region'].toString())
-                    .text
-                    .white
-                    .xs
-                    .bold
-                    .make()
-                    .box
-                    .color(
-                      isSoon
-                          ? Colors.blueGrey
-                          : isPast
-                          ? Colors.grey
-                          : widget.red,
-                    )
-                    .padding(
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    )
-                    .roundedSM
-                    .make(),
-          ),
-          Positioned(
-            bottom: 10,
-            left: 10,
-            child: VStack([
-              widget.data['name']
-                  .toString()
-                  .text
-                  .color(isSoon ? Colors.grey : widget.gold)
-                  .bold
-                  .make(),
-              widget.data['jp'].toString().text.white.xs.make(),
-            ]),
+
+          // RIGHT ARROW (Visible with background)
+          Align(
+            alignment: Alignment.centerRight,
+            child: _buildNavButton(
+              icon: Icons.arrow_forward_ios,
+              onPressed: () => _pageController.nextPage(
+                duration: 800.milliseconds,
+                curve: Curves.easeInOutQuart,
+              ),
+            ),
           ),
         ],
-      ).onTap(widget.onTap), // Trigger the callback here
+      ),
     );
   }
+
+  // // Helper for visible navigation buttons
+  // Widget _buildNavButton({required IconData icon, required VoidCallback onPressed}) {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 10),
+  //     decoration: BoxDecoration(
+  //       color: Colors.black.withOpacity(0.4), // Dark background to make arrow visible
+  //       shape: BoxShape.circle,
+  //       border: Border.all(color: gold.withOpacity(0.5), width: 1),
+  //     ),
+  //     child: IconButton(
+  //       icon: Icon(icon, color: Colors.white, size: 28),
+  //       onPressed: onPressed,
+  //     ),
+  //   );
+  // }
+
+  Widget _buildNavButton({required IconData icon, required VoidCallback onPressed}) {
+  return GestureDetector(
+    onTap: onPressed,
+    // HitTestBehavior.opaque ensures the transparent area around the arrow is still clickable
+    behavior: HitTestBehavior.opaque, 
+    child: SizedBox(
+      height: double.infinity, // Maintains a full-height vertical touch zone
+      width: 80,               // Provides a generous horizontal touch area
+      child: Icon(
+        icon,
+        color: Colors.white.withOpacity(0.9), // Bright white as seen in your screenshot
+        size: 45,                             // Increased size for better visibility
+      ).centered(),
+    ),
+  );
+}
 }

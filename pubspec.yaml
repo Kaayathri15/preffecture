@@ -18,6 +18,7 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.4  # Downgraded slightly to match notifications v17
   font_awesome_flutter: ^10.12.0
+  barcode_widget: ^2.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -29,3 +30,15 @@ flutter:
     - assets/images/4727_Logo_copy.png
     - assets/images/japan_map.png
     - assets/sponsors/logo.svg
+    - assets/images/casio-logo.webp
+    - assets/images/g-shock.png
+    - assets/images/mitsubishi-logo.jpg
+    - assets/images/uniqlo-logo.png
+    - assets/images/toho-logo.png
+    - assets/images/japan-airline.png
+    - assets/images/suntory-logo.png
+    - assets/images/shisheido-logo.png
+    - assets/food/12.jpg
+    - assets/food/14.jpg
+    - assets/food/15.jpeg
+
