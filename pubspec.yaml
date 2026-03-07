@@ -19,6 +19,11 @@ dependencies:
   timezone: ^0.9.4  # Downgraded slightly to match notifications v17
   font_awesome_flutter: ^10.12.0
   barcode_widget: ^2.0.4
+  flutter_svg: ^2.2.3
+  cached_network_image: ^3.4.1
+  http: ^1.6.0
+  flutter_dotenv: ^6.0.0
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -27,12 +32,16 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/images/4727_Logo_copy.png
+    - assets/images/logo-eq.svg
+    - assets/images/kampachi-logo.png
+    - assets/images/4727_with_border_Logo.png
     - assets/images/japan_map.png
     - assets/sponsors/logo.svg
-    - assets/images/casio-logo.webp
+    - assets/images/casio-logo.png
     - assets/images/g-shock.png
-    - assets/images/mitsubishi-logo.jpg
+    - assets/images/mitsubishi-logo.webp
     - assets/images/uniqlo-logo.png
     - assets/images/toho-logo.png
     - assets/images/japan-airline.png
@@ -41,4 +50,7 @@ flutter:
     - assets/food/12.jpg
     - assets/food/14.jpg
     - assets/food/15.jpeg
+    - assets/images/sunburst.png
+    - assets/images/ippudo.avif
+    - assets/images/MAiSEN-Logo.avif
 

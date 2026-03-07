@@ -30,7 +30,7 @@ class _PrefectureRegionPageState extends State<PrefectureRegionPage> {
           "name": "Hokkaido",
           "jp": "札幌",
           "details": "Japan's northern frontier known for powdery winter snow, world-class skiing, and exceptionally fresh dairy and seafood shaped by its cool climate and vast natural landscapes.\n\nLocal specialties: \n• Dairy products (milk, cheese, butter)\n• Seafood (crab, scallops, uni)\n• Yubari melon\n\nMust-visit attractions: \n• Panoramic Flower Gardens Shikisai-no-oka \n• Niseko ski resorts\n• Otaru Canal\n\nMust-try food / local cuisine: \n• Soup curry \n• Miso ramen\n• Seafood donburi\n• Soft-serve ice cream\n\nMust-buy souvenirs / local crafts: \n• Shiroi Koibito cookies\n• ROYCE' Nama Chocolate \n• Lavender products\n\nFun fact / cultural quirk: Hokkaido is famous for its snow festivals and large-scale outdoor winter events, attracting visitors worldwide.",
-          "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg",
+          "img": "https://en.obihiro-glamping.com/wp-content/uploads/2022/08/0043.jpg",
         },
       ]
     },
@@ -44,7 +44,7 @@ class _PrefectureRegionPageState extends State<PrefectureRegionPage> {
           "name": "Aomori",
           "jp": "青森",
           "details": "Japan's apple capital, famous for crisp, juicy apples and the vibrant Nebuta Festival that lights up summer nights.\n\nLocal Specialties: \n• Apples \n• Seafood (scallops, sea urchin, oma tuna)\n• Aomori senbei soup\n\nMust-Visit Attractions:\n• Hirosaki Castle\n• Nebuta Museum\n• Lake Towada\n\nMust-Try Food / Local Cuisine: \n• Kaiyaki Miso\n• Nokke-don \n• Senbei-jiru \n• Ichigo-ni \n\nMust-Buy Souvenirs / Local Crafts: \n• Hirosaki apples\n• Nebuta-themed goods\n• Tsugaru lacquerware\n\nFun Fact / Cultural Quirk: Home of the Nebuta Festival, a spectacular summer parade with giant illuminated floats.",
-          "img": "https://images.pexels.com/photos/7792201/pexels-photo-7792201.jpeg",
+          "img": "https://images.pexels.com/photos/1654748/pexels-photo-1654748.jpeg",
         },
         {
           "name": "Iwate",

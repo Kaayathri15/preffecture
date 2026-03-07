@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,8 @@ import 'package:velocity_x/velocity_x.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class PrefectureDetail extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -177,21 +180,11 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                       ),
                       _detailItem(
                         Icons.confirmation_number,
-                        "Entry: RM 2,500",
+                        "Entry Fee: RM 2,500",
                         themeColor,
                       ),
                     ],
                   ).pSymmetric(h: 16),
-
-                32.heightBox,
-                "Official Sponsors".text
-                    .color(themeColor)
-                    .xl
-                    .bold
-                    .make()
-                    .pSymmetric(h: 16),
-                12.heightBox,
-                _buildSponsorList(isUpcoming),
 
                 32.heightBox,
                 "About the Event".text
@@ -202,7 +195,7 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                     .pSymmetric(h: 16),
                 8.heightBox,
                 (isUpcoming
-                        ? "We are currently curating an exclusive cultural experience for this region. Details will be revealed soon."
+                        ? "We are currently curating an exclusive cultural experience for this region. Full details will be revealed soon."
                         : "Discover a masterfully curated selection of authentic Japanese flavors and traditions.")
                     .text
                     .white
@@ -211,12 +204,6 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                     .pSymmetric(h: 16),
 
                 24.heightBox,
-                "Culinary Highlights".text
-                    .color(themeColor)
-                    .lg
-                    .semiBold
-                    .make()
-                    .pSymmetric(h: 16),
                 12.heightBox,
                 HStack(
                   foodImages
@@ -226,9 +213,7 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                         (entry) => VxBox()
                             .bgImage(
                               DecorationImage(
-                                image: AssetImage(
-                                  entry.value,
-                                ), // Changed from NetworkImage to AssetImage
+                                image: AssetImage(entry.value),
                                 fit: BoxFit.cover,
                                 colorFilter: isUpcoming
                                     ? const ColorFilter.mode(
@@ -253,12 +238,7 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                   32.heightBox,
                   _buildNoticeCard(themeColor),
                   32.heightBox,
-                  "Select a Venue to Book".text
-                      .color(themeColor)
-                      .xl
-                      .bold
-                      .make()
-                      .pSymmetric(h: 16),
+                  "".text.color(themeColor).xl.bold.make().pSymmetric(h: 16),
                   16.heightBox,
                   _buildVenueSelector(themeColor),
                   AnimatedSwitcher(
@@ -304,11 +284,10 @@ class _PrefectureDetailState extends State<PrefectureDetail>
 
   Widget _buildSliverAppBar(bool isUpcoming) {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 340,
       pinned: true,
       backgroundColor: Colors.black,
-      automaticallyImplyLeading:
-          false, // Ensure this is false so it doesn't fight with your arrows
+      automaticallyImplyLeading: false,
       leading: widget.isStandalone
           ? null
           : IconButton(
@@ -318,7 +297,9 @@ class _PrefectureDetailState extends State<PrefectureDetail>
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
+          clipBehavior: Clip.none,
           children: [
+            // 1. Background photo
             ColorFiltered(
               colorFilter: ColorFilter.mode(
                 Colors.grey,
@@ -326,30 +307,20 @@ class _PrefectureDetailState extends State<PrefectureDetail>
               ),
               child: Image.network(widget.data['img'], fit: BoxFit.cover),
             ),
-            if (isUpcoming)
-              Center(
-                child: FadeTransition(
-                  opacity: _pulseController,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 2),
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                    child: "COMING SOON...".text.white.xl2.widest.bold.make(),
-                  ),
-                ),
-              ),
+
+            // 3. SCROLLING LOGO MARQUEE BANNER
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _MarqueeBanner(gold: gold, grayscale: isUpcoming),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // --- Helper Widgets remain as they were but with Grammar updates ---
   Widget _buildReminderButton() => Column(
     children: [
       IconButton(
@@ -375,30 +346,32 @@ class _PrefectureDetailState extends State<PrefectureDetail>
     alignment: MainAxisAlignment.center,
   ).p8().box.color(color).roundedLg.make();
 
-Widget _buildSponsorList(bool grayscale) => HStack([
-    // Ensure these paths match your actual asset folder structure
-    _partnerLogo("Casio", "assets/images/casio-logo.webp", grayscale),
-    _partnerLogo("Toho", "assets/images/toho-logo.png", grayscale),
-    _partnerLogo("Uniqlo", "assets/images/uniqlo-logo.png", grayscale),
+  Widget _buildSponsorList(bool grayscale) => HStack([
+    _partnerLogo("", "assets/images/casio-logo.png", grayscale),
+    _partnerLogo("", "assets/images/toho-logo.png", grayscale),
+    _partnerLogo("", "assets/images/uniqlo-logo.png", grayscale),
   ]).pSymmetric(h: 16).scrollHorizontal();
 
-
-Widget _partnerLogo(String name, String assetPath, bool grayscale) => VStack([
-  VxBox()
-      .bgImage(DecorationImage(
-        image: AssetImage(assetPath),
-        fit: BoxFit.contain,
-        colorFilter: grayscale ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
-      ))
-      .size(100, 60)
-      .p8
-      .color(Colors.black) // Change this from white.withOpacity(0.1) to black
-      .rounded
-      .border(color: Colors.white10, width: 1) // Optional: adds a subtle border so you can see the shape
-      .make(),
-  4.heightBox,
-  name.text.color(grayscale ? Colors.grey : Colors.white).xs.makeCentered(),
-]).pOnly(right: 16);
+  Widget _partnerLogo(String name, String assetPath, bool grayscale) => VStack([
+    VxBox()
+        .bgImage(
+          DecorationImage(
+            image: AssetImage(assetPath),
+            fit: BoxFit.contain,
+            colorFilter: grayscale
+                ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
+                : null,
+          ),
+        )
+        .size(100, 60)
+        .p8
+        .color(Colors.black)
+        .rounded
+        .border(color: Colors.white10, width: 1)
+        .make(),
+    4.heightBox,
+    name.text.color(grayscale ? Colors.grey : Colors.white).xs.makeCentered(),
+  ]).pOnly(right: 16);
 
   Widget _buildNoticeCard(Color color) =>
       VxBox(
@@ -406,7 +379,6 @@ Widget _partnerLogo(String name, String assetPath, bool grayscale) => VStack([
               Icon(Icons.info_outline, color: color, size: 24),
               16.widthBox,
               VStack([
-                "BOOKING REQUIRED".text.color(color).bold.make(),
                 "Reservations are mandatory. Please select a venue below."
                     .text
                     .white
@@ -475,8 +447,9 @@ Widget _partnerLogo(String name, String assetPath, bool grayscale) => VStack([
 
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
-    if (await canLaunchUrl(url))
+    if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
   }
 
   void _openGallery(int initialIndex) {
@@ -523,11 +496,7 @@ class _FoodGallerySliderState extends State<_FoodGallerySlider> {
             controller: _controller,
             itemCount: widget.images.length,
             itemBuilder: (context, index) => InteractiveViewer(
-              child: Image.asset(
-                // Changed from Image.network to Image.asset
-                widget.images[index],
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(widget.images[index], fit: BoxFit.contain),
             ),
           ),
           Positioned(
@@ -559,6 +528,113 @@ class _FoodGallerySliderState extends State<_FoodGallerySlider> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MarqueeBanner extends StatefulWidget {
+  final Color gold;
+  final bool grayscale;
+
+  const _MarqueeBanner({required this.gold, required this.grayscale});
+
+  @override
+  State<_MarqueeBanner> createState() => _MarqueeBannerState();
+}
+
+class _MarqueeBannerState extends State<_MarqueeBanner>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  final List<String> _logos = [
+    'assets/images/kampachi-logo.png',
+    'assets/images/ippudo.avif',
+    'assets/images/MAiSEN-Logo.avif',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 15),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 1. Setup Items
+    final List<Widget> marqueeItems = widget.grayscale
+        ? List.generate(
+            6,
+            (index) => "COMING SOON . . .".text
+                .color(widget.gold)
+                .bold
+                .widest
+                .size(16)
+                .make()
+                .pSymmetric(h: 40),
+          )
+        : _logos
+              .map(
+                (logo) => Image.asset(
+                  logo,
+                  width: 100,
+                  fit: BoxFit.contain,
+                ).pSymmetric(h: 30),
+              )
+              .toList();
+
+    final items = [...marqueeItems, ...marqueeItems];
+
+    return Container(
+      height: 65,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black.withOpacity(0.7), Colors.black],
+        ),
+      ),
+      child: ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              Colors.black, // Fully hidden at the very edge
+              Colors.transparent, // Fully visible very quickly
+              Colors.transparent, // Stay visible
+              Colors.black, // Fade out at the very end
+            ],
+            // Changing 0.05 to 0.02 makes the "fade" area much thinner/lighter
+            stops: [0.0, 0.02, 0.98, 1.0],
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.dstOut,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            // We use a simpler translation logic to avoid layout jumps
+            return FractionalTranslation(
+              translation: Offset(-_controller.value, 0),
+              child: child,
+            );
+          },
+          child: OverflowBox(
+            maxWidth: double.infinity, // FIXES THE OVERFLOW ERROR
+            alignment: Alignment.centerLeft,
+            child: Row(mainAxisSize: MainAxisSize.min, children: items),
+          ),
+        ),
       ),
     );
   }

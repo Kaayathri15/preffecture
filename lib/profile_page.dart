@@ -12,6 +12,21 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _sendNotifications = true;
   final Color gold = const Color(0xFFC5A059);
 
+  // Sample Data
+  final String _userName = "Rothman Haron";
+  final String _phoneNumber = "+60 12-345 6789";
+
+  // Logic: Extract only the last 6 numeric digits
+  String get _userId {
+    // 1. Remove all non-numeric characters (removes +, -, spaces, and letters)
+    String digitsOnly = _phoneNumber.replaceAll(RegExp(r'\D'), '');
+    
+    // 2. Return the last 6 digits, or the whole string if shorter than 6
+    return digitsOnly.length >= 6 
+        ? digitsOnly.substring(digitsOnly.length - 6) 
+        : digitsOnly;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,23 +37,31 @@ class _ProfilePageState extends State<ProfilePage> {
           VStack([
             30.heightBox,
             VxBox(child: Icon(Icons.person, size: 50, color: gold))
-                .width(100).height(100).roundedFull
-                .border(color: gold, width: 2).makeCentered(),
+                .width(100)
+                .height(100)
+                .roundedFull
+                .border(color: gold, width: 2)
+                .makeCentered(),
             16.heightBox,
-            "Rothman Haron".text.white.xl2.bold.makeCentered(),
-            "".text.color(gold).semiBold.makeCentered(),
+            _userName.text.white.xl2.bold.makeCentered(),
+            4.heightBox,
+            // Displaying only the 6-digit numeric ID
+            ""
+                .text.color(gold).semiBold.size(14).makeCentered(),
           ]).p24().wFull(context),
 
           // --- 2. PERSONAL DETAILS ---
           "Personal Details".text.color(gold).semiBold.make().pOnly(left: 16, bottom: 8),
           VStack([
+            _buildInfoTile("User ID", _userId, Icons.fingerprint),
+            _divider(),
             _buildInfoTile("First Name", "Rothman", Icons.person_outline),
             _divider(),
             _buildInfoTile("Last Name", "Haron", Icons.person_outline),
             _divider(),
             _buildInfoTile("Email Address", "rothman.h@example.com", Icons.email_outlined),
             _divider(),
-            _buildPhoneTile("+60", "12-345 6789"),
+            _buildPhoneTile("+60", _phoneNumber),
             _divider(),
             _buildInfoTile("Nationality", "Malaysian", Icons.public_outlined),
             _divider(),
@@ -49,19 +72,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
           24.heightBox,
 
-          // --- 3. STATS SECTION (Positioned exactly as requested) ---
+          // --- 3. STATS SECTION ---
           HStack([
             _buildStatItem("27", "Prefectures", gold),
-            _buildStatItem("3,000", "Total Points", gold),
+            _buildStatItem("3,000", "Current Points", gold),
             _buildStatItem("0", "Vouchers", gold),
           ], alignment: MainAxisAlignment.spaceEvenly)
-          .box
-          .border(color: gold.withOpacity(0.3))
-          .roundedLg
-          .p16
-          .width(double.infinity)
-          .margin(const EdgeInsets.symmetric(horizontal: 16))
-          .make(),
+          .box.border(color: gold.withOpacity(0.3)).roundedLg.p16
+          .width(double.infinity).margin(const EdgeInsets.symmetric(horizontal: 16)).make(),
 
           24.heightBox,
 
@@ -69,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
           "Privacy & Security".text.color(gold).semiBold.make().pOnly(left: 16, bottom: 8),
           VStack([
             _buildActionItem(Icons.lock_outline, "Change Password", () {
-              print("Navigate to Change Password");
+              debugPrint("Navigate to Change Password");
             }),
             _divider(),
             HStack([
@@ -92,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
           "Logout".text.red500.bold.makeCentered()
               .box.border(color: Colors.red.withOpacity(0.3)).roundedLg.p12
               .margin(const EdgeInsets.symmetric(horizontal: 16)).make()
-              .onTap(() => print("User Logged Out")),
+              .onTap(() => debugPrint("User Logged Out")),
           
           40.heightBox,
         ]).scrollVertical(),
@@ -140,7 +158,6 @@ class _ProfilePageState extends State<ProfilePage> {
     ]).p16().onTap(onTap);
   }
 
-  // Corrected Helper with gold parameter and CrossAxisAlignment fix
   Widget _buildStatItem(String value, String label, Color goldColor) {
     return VStack([
       value.text.white.xl.bold.make(),

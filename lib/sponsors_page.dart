@@ -8,7 +8,7 @@ class SponsorsPage extends StatelessWidget {
   // These paths are verified against your VS Code sidebar screenshot
   final List<Map<String, String>> sponsors = const [
     {"name": "TOHO", "logo": "assets/images/toho-logo.png", "url": "https://www.toho.co.jp"},
-    {"name": "CASIO", "logo": "assets/images/casio-logo.webp", "url": "https://www.casio.com"},
+    {"name": "CASIO", "logo": "assets/images/casio-logo.png", "url": "https://www.casio.com"},
     {"name": "UNIQLO", "logo": "assets/images/uniqlo-logo.png", "url": "https://www.uniqlo.com"},
     {"name": "G-SHOCK", "logo": "assets/images/g-shock.png", "url": "https://www.g-shock.com"},
     // FIXED: Using exact name from your 'General Info' screenshot
@@ -16,7 +16,7 @@ class SponsorsPage extends StatelessWidget {
     // FIXED: Filename in your sidebar is 'japan-airline.png' (no 's')
     {"name": "JAPAN AIRLINE", "logo": "assets/images/japan-airline.png", "url": "https://www.jal.co.jp"},
     {"name": "SHISEIDO", "logo": "assets/images/shisheido-logo.png", "url": "https://www.shiseido.com"},
-    {"name": "MITSUBISHI", "logo": "assets/images/mitsubishi-logo.jpg", "url": "https://www.mitsubishi.com"},
+    {"name": "MITSUBISHI", "logo": "assets/images/mitsubishi-logo.webp", "url": "https://www.mitsubishi.com"},
   ];
 
   Future<void> _launchURL(String urlString) async {
@@ -75,3 +75,7 @@ class SponsorsPage extends StatelessWidget {
   .onTap(() => _launchURL(sponsor['url']!));
 }
 }
+
+
+
+

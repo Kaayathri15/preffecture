@@ -14,8 +14,6 @@ class Participant {
     required this.prefectures,
     this.isUser = false,
   });
-
-  int get points => prefectures * 2000;
 }
 
 class ReportPage extends StatefulWidget {
@@ -25,22 +23,23 @@ class ReportPage extends StatefulWidget {
   State<ReportPage> createState() => _ReportPageState();
 }
 
-class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
+class _ReportPageState extends State<ReportPage> {
   final Color gold = const Color(0xFFC5A059);
   final Color red = const Color(0xFFE50914);
 
-  bool _sortByMostPrefectures = true;
-
-  // Participant list remains unchanged as requested
   final List<Participant> _participants = [
-    Participant(name: "Takeshi K.", prefectures: 20),
+    Participant(name: "Takeshi K.", prefectures: 25),
     Participant(name: "Rothman Haron", prefectures: 19, isUser: true),
-    Participant(name: "Syed Hussein", prefectures: 10),
-    Participant(name: "Yu Ying Fong", prefectures: 9),
-    Participant(name: "John Labu", prefectures: 5),
+    Participant(name: "Syed Hussein", prefectures: 18),
+    Participant(name: "Yu Ying Fong", prefectures: 15),
+    Participant(name: "John Labu", prefectures: 12),
+    Participant(name: "Aisha M.", prefectures: 10),
+    Participant(name: "Kenji Sato", prefectures: 8),
+    Participant(name: "Li Wei", prefectures: 7),
+    Participant(name: "Sarah J.", prefectures: 5),
+    Participant(name: "Hiroshi T.", prefectures: 3),
   ];
 
-  // Data mapping for specific prefectures to match PrefectureDetail requirements
   final Map<String, Map<String, dynamic>> _prefectureData = {
     "Hokkaido": {
       "name": "Hokkaido",
@@ -65,16 +64,6 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
     }
   };
 
-  List<Participant> get _sortedParticipants {
-    List<Participant> list = List.from(_participants);
-    if (_sortByMostPrefectures) {
-      list.sort((a, b) => b.prefectures.compareTo(a.prefectures));
-    } else {
-      list.sort((a, b) => b.points.compareTo(a.points));
-    }
-    return list;
-  }
-
   void _navigateToDetail(BuildContext context, Map<String, dynamic> data) {
     Navigator.push(
       context,
@@ -89,69 +78,47 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final japanBounds = LatLngBounds(LatLng(24.0, 123.0), LatLng(46.0, 149.0));
-
     return Scaffold(
       backgroundColor: Colors.black,
-      body: VStack([
-        "Tap a red marker to explore the prefecture"
-            .text
-            .gray500
-            .italic
-            .size(12)
-            .make()
-            .pOnly(left: 16, bottom: 4, top: 16),
+      body: SafeArea(
+        child: VStack([
+          "Tap a red marker to explore".text.gray500.italic.size(12).make().p16(),
 
-        // Map Section
-        SizedBox(
-          height: 400,
-          child: FlutterMap(
-            options: MapOptions(
-              initialCenter: const LatLng(36.2048, 138.2529),
-              initialZoom: 5.0,
-              minZoom: 4.5,
-              maxZoom: 7.0,
-              maxBounds: japanBounds,
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+          // Map Section
+          SizedBox(
+            height: 300,
+            child: FlutterMap(
+              options: const MapOptions(
+                initialCenter: LatLng(36.2048, 138.2529),
+                initialZoom: 4.5,
               ),
+              children: [
+                TileLayer(urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'),
+                MarkerLayer(
+                  markers: [
+                    _buildMapMarker(context, const LatLng(43.0641, 141.3469), "Hokkaido"),
+                    _buildMapMarker(context, const LatLng(38.2682, 140.8694), "Sendai"),
+                    _buildMapMarker(context, const LatLng(35.6762, 139.6503), "Tokyo"),
+                  ],
+                ),
+              ],
             ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
-              ),
-              MarkerLayer(
-                markers: [
-                  _buildMapMarker(context, const LatLng(43.0641, 141.3469), "Hokkaido"),
-                  _buildMapMarker(context, const LatLng(38.2682, 140.8694), "Sendai"),
-                  _buildMapMarker(context, const LatLng(35.6762, 139.6503), "Tokyo"),
-                ],
-              ),
-            ],
-          ),
-        ).box.border(color: Colors.white10).withRounded(value: 16).clip(Clip.antiAlias).make().p16(),
+          ).box.border(color: Colors.white10).withRounded(value: 16).clip(Clip.antiAlias).make().p16(),
 
-        HStack([
-          "Top 5 Participants".text.color(gold).semiBold.make(),
-          const Spacer(),
-          TextButton.icon(
-            onPressed: () => setState(() => _sortByMostPrefectures = !_sortByMostPrefectures),
-            icon: Icon(Icons.sort, color: gold, size: 16),
-            label: (_sortByMostPrefectures ? "By Prefecture" : "By Points")
-                .text.color(gold).size(12).make(),
-          ),
-        ]).pSymmetric(h: 16, v: 8),
+          "Top 10 Participants".text.color(gold).semiBold.xl.make().pSymmetric(h: 16),
+          15.heightBox,
 
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _sortedParticipants.length,
-          itemBuilder: (context, index) => _rankingTile(index, _sortedParticipants[index]),
-        ).pSymmetric(h: 16),
+          // Ranking List
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _participants.length,
+            itemBuilder: (context, index) => _rankingTile(index, _participants[index]),
+          ).pSymmetric(h: 16),
 
-        40.heightBox,
-      ]).scrollVertical(),
+          150.heightBox, // Large bottom space for guaranteed scrolling
+        ]).scrollVertical(),
+      ),
     );
   }
 
@@ -161,9 +128,7 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
       width: 40,
       height: 40,
       child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Retrieves the full data map based on the key
           final data = _prefectureData[key] ?? {"name": key, "img": "https://via.placeholder.com/800"};
           _navigateToDetail(context, data);
         },
@@ -174,49 +139,37 @@ class _ReportPageState extends State<ReportPage> with TickerProviderStateMixin {
               .border(color: Colors.white.withOpacity(0.5), width: 1.5)
               .size(12, 12)
               .make()
-              .shimmer(
-                primaryColor: red,
-                secondaryColor: Colors.white.withOpacity(0.4),
-                duration: const Duration(milliseconds: 1500),
-              ),
+              .shimmer(primaryColor: red),
         ),
       ),
     );
   }
 
-  Widget _rankingTile(int index, Participant person) {
-    bool isFirst = index == 0;
-
+Widget _rankingTile(int index, Participant person) {
     return VxBox(
       child: HStack([
-        VxBox(child: (index + 1).text.white.bold.xl.makeCentered())
-            .width(50)
-            .height(50)
-            .color(isFirst ? red : gold)
-            .withRounded(value: 10)
+        // Rank Number Box
+        VxBox(child: (index + 1).text.white.bold.makeCentered())
+            .width(35)
+            .height(35)
+            // Logic: Red for the user, Gold for everyone else
+            .color(person.isUser ? red : gold) 
+            .roundedSM
             .make(),
         15.widthBox,
+        
+        // Participant Name & Status
         VStack([
-          HStack([
-            person.name.text.white.bold.lg.make(),
-            if (person.isUser) " (You)".text.gray500.sm.make(),
-          ]),
-          "Status: Active Journey".text.gray500.size(10).make(),
+          person.name.text.white.semiBold.lg.make(),
+          "Active Journey".text.gray500.size(10).make(),
         ]).expand(),
-        VStack([
-          if (_sortByMostPrefectures)
-            person.prefectures.toString().text.color(gold).semiBold.xl2.make()
-          else
-            person.points.toString().numCurrency.text.color(gold).semiBold.xl.make(),
-          (_sortByMostPrefectures ? "Prefectures" : "Points")
-              .text.gray500.size(10).make(),
-        ], crossAlignment: CrossAxisAlignment.end),
+        
+        const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
       ]).p12(),
     )
-        .width(double.infinity)
-        .border(color: isFirst ? gold.withOpacity(0.6) : Colors.white10, width: 1)
-        .withRounded(value: 12)
-        .margin(const EdgeInsets.only(bottom: 12))
-        .make();
+    .border(color: Colors.white10)
+    .withRounded(value: 12)
+    .margin(const EdgeInsets.only(bottom: 12))
+    .make();
   }
 }

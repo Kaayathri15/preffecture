@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -24,6 +26,23 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need access to your calendar so you can book trips to prefectures.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This is used to provide location autocomplete for your calendar events.</string>
+	<key>NSLocalNotificationsUsageDescription</key>
+	<string>We need to notify you when the cultural event starts.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>processing</string>
+		<string>audio</string>
+		<string>location</string>
+		<string>voip</string>
+		<string>nearby-interaction</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -41,20 +60,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
+	<key>GIDClientID</key>
+	<string>219809423044-7asg67osf9cc1qapvbqi4en1tg0ljuqr.apps.googleusercontent.com</string>
 
-	<key>NSCalendarsUsageDescription</key>
-	<string>We need access to your calendar so you can book trips to prefectures.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>This is used to provide location autocomplete for your calendar events.</string>
-	<key>UIBackgroundModes</key>
+
+	<key>CFBundleURLTypes</key>
 	<array>
-		<string>remote-notification</string>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.219809423044-7asg67osf9cc1qapvbqi4en1tg0ljuqr</string>
+			</array>
+		</dict>
 	</array>
-	<key>NSLocalNotificationsUsageDescription</key>
-	<string>We need to notify you when the cultural event starts.</string>
 </dict>
 </plist>

@@ -8,9 +8,37 @@ import 'package:preffecture/PrefectureRegionPage.dart';
 import 'package:preffecture/reward_page.dart';
 import 'package:preffecture/auth_page.dart';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // New Import
+import 'dart:io';
+import 'package:flutter/foundation.dart'; // For kDebugMode
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 
-void main() => runApp(const PrefectureApp());
-
+class HttpClientFactory {
+    static http.Client createClient() {
+        if (kDebugMode) {
+            final HttpClient ioc = HttpClient();
+            // Ignore certificate errors for self-signed development certificates
+            ioc.badCertificateCallback = 
+                (X509Certificate cert, String host, int port) => true;
+            return IOClient(ioc);
+        }
+        return http.Client();
+    }
+}
+// Updated main function
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  
+  // Initialize Google Sign-In instance once
+  await GoogleSignIn.instance.initialize(
+    clientId: '219809423044-7asg67osf9cc1qapvbqi4en1tg0ljuqr.apps.googleusercontent.com', // From your GoogleService-Info.plist/Console
+  );
+  
+  runApp(const PrefectureApp());
+}
 class PrefectureApp extends StatelessWidget {
   const PrefectureApp({super.key});
 
@@ -38,7 +66,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scale;
   late Animation<double> _fade;
@@ -54,12 +83,24 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.2).chain(CurveTween(curve: Curves.elasticOut)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.0,
+          end: 1.2,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 20,
+      ),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.1), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 1.1, end: 1.0), weight: 10),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 2.5).chain(CurveTween(curve: Curves.easeInCirc)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 2.5,
+        ).chain(CurveTween(curve: Curves.easeInCirc)),
+        weight: 20,
+      ),
     ]).animate(_controller);
 
     _fade = TweenSequence<double>([
@@ -86,7 +127,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _controller.forward();
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthPage()),
+        );
       }
     });
   }
@@ -111,7 +155,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               scale: _scale.value,
               child: Opacity(
                 opacity: _fade.value,
-                child: Image.asset("assets/images/4727_Logo_copy.png", width: 220),
+                child: Image.asset(
+                  "assets/images/4727_Logo_copy.png",
+                  width: 220,
+                ),
               ),
             ),
           ),
@@ -136,13 +183,20 @@ class _MainWrapperState extends State<MainWrapper> {
 
   String _getAppBarTitle() {
     switch (_currentIndex) {
-      case 0: return "Experiences & Highlights";
-      case 1: return "Prefectures";
-      case 2: return "Partners";
-      case 3: return "Journey Tracker";
-      case 4: return "Rewards";
-      case 5: return "Profile";
-      default: return "";
+      case 0:
+        return "   Experiences & Highlights";
+      case 1:
+        return "   Prefectures";
+      case 2:
+        return "   Partners";
+      case 3:
+        return "   Journey Tracker";
+      case 4:
+        return "   Rewards";
+      case 5:
+        return "   Profile";
+      default:
+        return "";
     }
   }
 
@@ -163,8 +217,11 @@ class _MainWrapperState extends State<MainWrapper> {
         elevation: 0,
         centerTitle: false,
         title: HStack([
-          "47で27".text.color(red).bold.xl3.make(),
-          20.widthBox,
+          Image.asset(
+            'assets/images/4727_with_border_Logo.png',
+            height: 35, // Adjusted height to fit within an AppBar/Header row
+            fit: BoxFit.contain,
+          ),
           _getAppBarTitle().text.color(gold).semiBold.lg.make(),
         ]).pOnly(left: 4),
         bottom: PreferredSize(
@@ -182,13 +239,43 @@ class _MainWrapperState extends State<MainWrapper> {
         unselectedItemColor: Colors.white24,
         showSelectedLabels: false,
         showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Explore"),
-          BottomNavigationBarItem(icon: Icon(Icons.handshake), label: "Sponsors"),
-          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: "Reports"),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Rewards"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        items: [
+          BottomNavigationBarItem(
+            // Replacing the auto_awesome icon with your custom logo
+            icon: Image.asset(
+              'assets/images/sunburst.png', // Or use your specific logo path
+              height: 28, // Standard size for bottom bar icons
+              fit: BoxFit.contain,
+              color: _currentIndex == 0 ? null : Colors.white24, //
+            ),
+            // Optional: Add a 'activeIcon' to show a different version when selected
+            activeIcon: Image.asset(
+              'assets/images/sunburst.png',
+              height: 28,
+              color: gold, // This will tint the logo to your gold theme color
+            ),
+            label: "Home",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: "Explore",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.handshake),
+            label: "Sponsors",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: "Reports",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.emoji_events),
+            label: "Rewards",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Profile",
+          ),
         ],
       ),
     );
@@ -210,11 +297,37 @@ class _PrefectureHomeState extends State<PrefectureHome> {
 
   // Actual Data
   final List<Map<String, dynamic>> _activePrefectures = [
-    {"name": "Hokkaido", "region": "Hokkaido", "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg", "jp": "北海道", "status": "active"},
-    {"name": "Tokyo", "region": "Kantō", "img": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf", "jp": "東京都", "status": "active"},
-    {"name": "Chiba", "region": "Kantō", "img": "https://images.pexels.com/photos/31461527/pexels-photo-31461527.jpeg", "jp": "千葉県", "status": "active"},
-    {"name": "Hokkaido", "region": "Hokkaido", "img": "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg", "jp": "北海道", "status": "soon"},
-
+    {
+      "name": "Hokkaido",
+      "region": "Hokkaido",
+      "img":
+          "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg",
+      "jp": "北海道",
+      "status": "active",
+    },
+    {
+      "name": "Tokyo",
+      "region": "Kantō",
+      "img": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf",
+      "jp": "東京都",
+      "status": "active",
+    },
+    {
+      "name": "Chiba",
+      "region": "Kantō",
+      "img":
+          "https://images.pexels.com/photos/31461527/pexels-photo-31461527.jpeg",
+      "jp": "千葉県",
+      "status": "active",
+    },
+    {
+      "name": "Aomori",
+      "region": "Tohoku",
+      "img":
+          "https://images.pexels.com/photos/5195410/pexels-photo-5195410.jpeg",
+      "jp": "青森県",
+      "status": "coming_soon",
+    },
   ];
 
   // Infinite loop constant
@@ -224,7 +337,9 @@ class _PrefectureHomeState extends State<PrefectureHome> {
   void initState() {
     super.initState();
     // Start the controller in the middle of the large number so the user can swipe left immediately
-    int initialPage = (_infinitePageCount ~/ 2) - ((_infinitePageCount ~/ 2) % _activePrefectures.length);
+    int initialPage =
+        (_infinitePageCount ~/ 2) -
+        ((_infinitePageCount ~/ 2) % _activePrefectures.length);
     _pageController = PageController(initialPage: initialPage);
     _startAutoSlide();
   }
@@ -234,6 +349,11 @@ class _PrefectureHomeState extends State<PrefectureHome> {
     _autoSlideTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _stopAutoSlide() {
+    _autoSlideTimer?.cancel();
+    _autoSlideTimer = null;
   }
 
   void _startAutoSlide() {
@@ -253,30 +373,37 @@ class _PrefectureHomeState extends State<PrefectureHome> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _infinitePageCount,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: (_) {
-              // Reset timer on manual swipe to prevent double-sliding
-              _autoSlideTimer?.cancel();
-              _startAutoSlide();
+          // 2. Wrap PageView with NotificationListener
+          NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              // Check if the scroll started because of a user touch (drag)
+              if (notification is ScrollStartNotification ) {
+                _stopAutoSlide(); // Kill the timer permanently
+              }
+              return false;
             },
-            itemBuilder: (context, index) {
-              // Calculate actual data index using modulo
-              final actualIndex = index % _activePrefectures.length;
-              return PrefectureDetail(
-                data: _activePrefectures[actualIndex],
-                isStandalone: true,
-              );
-            },
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _infinitePageCount,
+              physics: const BouncingScrollPhysics(),
+              // 3. REMOVE the restart logic from here to keep it stopped
+              onPageChanged: (_) {},
+              itemBuilder: (context, index) {
+                final actualIndex = index % _activePrefectures.length;
+                return PrefectureDetail(
+                  data: _activePrefectures[actualIndex],
+                  isStandalone: true,
+                );
+              },
+            ),
           ),
-          
+
           // LEFT ARROW (Visible with background)
           Align(
             alignment: Alignment.centerLeft,
             child: _buildNavButton(
               icon: Icons.arrow_back_ios_new,
+              isLeft: true,
               onPressed: () => _pageController.previousPage(
                 duration: 800.milliseconds,
                 curve: Curves.easeInOutQuart,
@@ -289,6 +416,7 @@ class _PrefectureHomeState extends State<PrefectureHome> {
             alignment: Alignment.centerRight,
             child: _buildNavButton(
               icon: Icons.arrow_forward_ios,
+              isLeft: false,
               onPressed: () => _pageController.nextPage(
                 duration: 800.milliseconds,
                 curve: Curves.easeInOutQuart,
@@ -300,36 +428,34 @@ class _PrefectureHomeState extends State<PrefectureHome> {
     );
   }
 
-  // // Helper for visible navigation buttons
-  // Widget _buildNavButton({required IconData icon, required VoidCallback onPressed}) {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 10),
-  //     decoration: BoxDecoration(
-  //       color: Colors.black.withOpacity(0.4), // Dark background to make arrow visible
-  //       shape: BoxShape.circle,
-  //       border: Border.all(color: gold.withOpacity(0.5), width: 1),
-  //     ),
-  //     child: IconButton(
-  //       icon: Icon(icon, color: Colors.white, size: 28),
-  //       onPressed: onPressed,
-  //     ),
-  //   );
-  // }
-
-  Widget _buildNavButton({required IconData icon, required VoidCallback onPressed}) {
-  return GestureDetector(
-    onTap: onPressed,
-    // HitTestBehavior.opaque ensures the transparent area around the arrow is still clickable
-    behavior: HitTestBehavior.opaque, 
-    child: SizedBox(
-      height: double.infinity, // Maintains a full-height vertical touch zone
-      width: 80,               // Provides a generous horizontal touch area
-      child: Icon(
-        icon,
-        color: Colors.white.withOpacity(0.9), // Bright white as seen in your screenshot
-        size: 45,                             // Increased size for better visibility
-      ).centered(),
-    ),
-  );
-}
+  Widget _buildNavButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required bool isLeft,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        _stopAutoSlide(); // Also stop auto-slide if buttons are clicked
+        onPressed();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 100,
+        width: 60,
+        // Adding a very light gradient so the arrow sits on a "hint" of a shadow
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+            end: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+            colors: [Colors.black.withOpacity(0.3), Colors.transparent],
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white.withOpacity(0.35), // Much subtler opacity
+          size: 30, // Slightly smaller and more elegant
+        ).centered(),
+      ),
+    );
+  }
 }
