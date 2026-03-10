@@ -7,9 +7,9 @@ class SponsorsPage extends StatelessWidget {
 
   // These paths are verified against your VS Code sidebar screenshot
   final List<Map<String, String>> sponsors = const [
-    {"name": "TOHO", "logo": "assets/images/toho-logo.png", "url": "https://www.toho.co.jp"},
+    // {"name": "TOHO", "logo": "assets/images/toho-logo.png", "url": "https://www.toho.co.jp"},
     {"name": "CASIO", "logo": "assets/images/casio-logo.png", "url": "https://www.casio.com"},
-    {"name": "UNIQLO", "logo": "assets/images/uniqlo-logo.png", "url": "https://www.uniqlo.com"},
+    // {"name": "UNIQLO", "logo": "assets/images/uniqlo-logo.png", "url": "https://www.uniqlo.com"},
     {"name": "G-SHOCK", "logo": "assets/images/g-shock.png", "url": "https://www.g-shock.com"},
     // FIXED: Using exact name from your 'General Info' screenshot
     {"name": "SUNTORY", "logo": "assets/images/suntory-logo.png", "url": "https://www.suntory.com"},

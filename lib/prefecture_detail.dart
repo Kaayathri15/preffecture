@@ -48,12 +48,23 @@ class _PrefectureDetailState extends State<PrefectureDetail>
           "url":
               "https://www.sevenrooms.com/explore/kampachiplaza33/reservations",
         },
+        {
+          "loc": "Kampachi Pavilion KL",
+          "url":
+              "https://www.sevenrooms.com/explore/kampachipavilionkl/reservations",
+        },
       ],
     },
     {
       "name": "IPPUDO",
       "outlets": [
-        {"loc": "Ippudo Pavilion KL", "url": "https://www.ippudo.com.my/"},
+        {"loc": "Ippudo", "url": "https://wa.link/9s2g50"},
+      ],
+    },
+     {
+      "name": "MAiSEN",
+      "outlets": [
+        {"loc": "MAiSEN", "url": "https://wa.link/z6nu4b"},
       ],
     },
   ];
@@ -234,12 +245,10 @@ class _PrefectureDetailState extends State<PrefectureDetail>
                       .toList(),
                 ).pSymmetric(h: 16).scrollHorizontal(),
 
-                if (!isUpcoming && !isPast) ...[
+                if (!isPast) ...[
                   32.heightBox,
                   _buildNoticeCard(themeColor),
                   32.heightBox,
-                  "".text.color(themeColor).xl.bold.make().pSymmetric(h: 16),
-                  16.heightBox,
                   _buildVenueSelector(themeColor),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
@@ -548,9 +557,10 @@ class _MarqueeBannerState extends State<_MarqueeBanner>
   late final AnimationController _controller;
 
   final List<String> _logos = [
-    'assets/images/kampachi-logo.png',
+    'assets/images/kampachi_white.png',
     'assets/images/ippudo.avif',
     'assets/images/MAiSEN-Logo.avif',
+    'assets/images/logo-eq.png'
   ];
 
   @override
@@ -574,7 +584,7 @@ class _MarqueeBannerState extends State<_MarqueeBanner>
     final List<Widget> marqueeItems = widget.grayscale
         ? List.generate(
             6,
-            (index) => "COMING SOON . . .".text
+            (index) => "COMING SOON ".text
                 .color(widget.gold)
                 .bold
                 .widest
@@ -601,7 +611,7 @@ class _MarqueeBannerState extends State<_MarqueeBanner>
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black.withOpacity(0.7), Colors.black],
+          colors: [Colors.black, Colors.black.withOpacity(0.5), Colors.black],
         ),
       ),
       child: ShaderMask(

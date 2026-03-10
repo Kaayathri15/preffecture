@@ -30,39 +30,56 @@ class _AuthPageState extends State<AuthPage> {
   String? selectedGender;
 
   final List<Map<String, String>> partners = const [
-    {"name": "TOHO", "logo": "assets/images/toho-logo.png"},
-    {"name": "CASIO", "logo": "assets/images/casio-logo.png"},
-    {"name": "UNIQLO", "logo": "assets/images/uniqlo-logo.png"},
-    {"name": "G-SHOCK", "logo": "assets/images/g-shock.png"},
-    {"name": "HOUSE", "logo": "assets/images/suntory-logo.png"},
-    {"name": "JAPAN AIRLINE", "logo": "assets/images/japan-airline.png"},
-    {"name": "SHISEIDO", "logo": "assets/images/shisheido-logo.png"},
-    {"name": "MITSUBISHI", "logo": "assets/images/mitsubishi-logo.webp"},
+    {"name": "KAMPACHI", "logo": "assets/images/kampachi-logo.png"},
+    {"name": "IPPUDO", "logo": "assets/images/ippudo_black.png"},
+    {"name": "MAISEN", "logo": "assets/images/MAiSEN-Logo.avif"},
   ];
 
+  /// Shows the T&C bottom sheet. Returns true if user agreed.
+  Future<bool> _showTermsBottomSheet() async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _TermsBottomSheet(gold: gold, red: red),
+    );
+    return result == true;
+  }
+
   Future<void> _handleAuth() async {
-    if (!isLogin && !termsAccepted) {
-      VxToast.show(
+    // For registration: show T&C popup first
+    if (!isLogin) {
+      final agreed = await _showTermsBottomSheet();
+      if (!agreed) return; // User dismissed without agreeing
+
+      // Navigate immediately after agreement, regardless of API result
+      if (!mounted) return;
+      Navigator.pushReplacement(
         context,
-        msg: "Please accept terms & conditions",
-        bgColor: red,
+        MaterialPageRoute(builder: (context) => const MainWrapper()),
       );
-      return;
-    }
 
-    VxToast.show(context, msg: "Connecting...", bgColor: gold);
-
-    final Map<String, dynamic> userData = {
-      "email": _emailController.text.trim(),
-      "password": _passwordController.text.trim(),
-      if (!isLogin) ...{
+      // Fire API in background (won't affect navigation)
+      final Map<String, dynamic> userData = {
+        "email": _emailController.text.trim(),
+        "password": _passwordController.text.trim(),
         "first_name": _firstNameController.text.trim(),
         "last_name": _lastNameController.text.trim(),
         "phone": _phoneController.text.trim(),
         "nationality": selectedNationality,
         "gender": selectedGender,
         "password_confirmation": _confirmPasswordController.text.trim(),
-      },
+      };
+      AuthService.authenticate(body: userData, isLogin: false);
+      return;
+    }
+
+    // Normal login flow
+    VxToast.show(context, msg: "Connecting...", bgColor: gold);
+
+    final Map<String, dynamic> userData = {
+      "email": _emailController.text.trim(),
+      "password": _passwordController.text.trim(),
     };
 
     final result = await AuthService.authenticate(
@@ -71,11 +88,7 @@ class _AuthPageState extends State<AuthPage> {
     );
 
     if (result["success"]) {
-      VxToast.show(
-        context,
-        msg: isLogin ? "Welcome back!" : "Account Created!",
-        bgColor: gold,
-      );
+      VxToast.show(context, msg: "Welcome back!", bgColor: gold);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainWrapper()),
@@ -93,7 +106,6 @@ class _AuthPageState extends State<AuthPage> {
     try {
       final GoogleSignIn signIn = GoogleSignIn.instance;
 
-      // 1. Check if the platform supports manual authentication
       if (await signIn.supportsAuthenticate()) {
         await signIn.authenticate();
       } else {
@@ -101,25 +113,16 @@ class _AuthPageState extends State<AuthPage> {
         return;
       }
 
-      // 2. Listen for the successful sign-in event reactively
       final event = await signIn.authenticationEvents.firstWhere(
         (e) => e is GoogleSignInAuthenticationEventSignIn,
       );
 
-      // 3. Type-safe cast to access the user and their authentication tokens
       if (event is GoogleSignInAuthenticationEventSignIn) {
         final auth = event.user.authentication;
 
-        final Map<String, dynamic> data = {
-          "id_token": auth.idToken,
-          "provider": "google",
-        };
-
-        // 4. Authenticate via your Laravel Service
-        // Change this in your _handleGoogleSignIn:
         final result = await AuthService.socialAuthenticate(
           provider: "google",
-          token: auth.idToken!, // Send only the token
+          token: auth.idToken!,
         );
 
         if (result["success"] && mounted) {
@@ -142,20 +145,13 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // FIX: Lock Marquee to the bottom professionally
       bottomNavigationBar: Container(
         color: Colors.black,
-        padding: const EdgeInsets.only(bottom: 30, top: 10),
+        padding: const EdgeInsets.only(bottom: 50, top: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            "OUR PARTNERS".text
-                .color(gold.withOpacity(0.4))
-                .widest
-                .xs
-                .bold
-                .makeCentered(),
-            15.heightBox,
+            25.heightBox,
             SizedBox(height: 50, child: MarqueeBrands(partners: partners)),
           ],
         ),
@@ -176,10 +172,7 @@ class _AuthPageState extends State<AuthPage> {
                   30.heightBox,
                   _buildTabs(),
                   30.heightBox,
-
-                  // Professional Form Arrangement
                   if (isLogin) ..._buildLoginForm() else ..._buildSignupForm(),
-
                   30.heightBox,
                   _buildSubmitButton(),
                   24.heightBox,
@@ -190,7 +183,7 @@ class _AuthPageState extends State<AuthPage> {
                     Colors.white,
                     onTap: _handleGoogleSignIn,
                   ).centered(),
-                  40.heightBox, // Space before the fixed bottom
+                  40.heightBox,
                 ],
               ),
             ),
@@ -268,20 +261,19 @@ class _AuthPageState extends State<AuthPage> {
       isPass: true,
     ),
     10.heightBox,
-    Row(
-      children: [
-        Checkbox(
-          value: termsAccepted,
-          activeColor: gold,
-          side: const BorderSide(color: Colors.white24),
-          onChanged: (v) => setState(() => termsAccepted = v!),
-        ),
-        "I agree to Terms & Conditions".text.white.xs.make(),
-      ],
-    ),
+    // Row(
+    //   children: [
+    //     Checkbox(
+    //       value: termsAccepted,
+    //       activeColor: gold,
+    //       side: const BorderSide(color: Colors.white24),
+    //       onChanged: (v) => setState(() => termsAccepted = v!),
+    //     ),
+    //     "I agree to Terms & Conditions".text.white.xs.make(),
+    //   ],
+    // ),
   ];
 
-  // UI Helpers
   Widget _buildGradientHeader() => Container(
     height: 300,
     decoration: BoxDecoration(
@@ -382,7 +374,6 @@ class _AuthPageState extends State<AuthPage> {
     ),
   );
 
-  // UPDATED Helper: Added onTap logic
   Widget _socialBtn(
     IconData icon,
     Color color, {
@@ -401,6 +392,228 @@ class _AuthPageState extends State<AuthPage> {
   );
 }
 
+// ─────────────────────────────────────────────
+//  T&C Bottom Sheet Widget
+// ─────────────────────────────────────────────
+class _TermsBottomSheet extends StatefulWidget {
+  final Color gold;
+  final Color red;
+  const _TermsBottomSheet({required this.gold, required this.red});
+
+  @override
+  State<_TermsBottomSheet> createState() => _TermsBottomSheetState();
+}
+
+class _TermsBottomSheetState extends State<_TermsBottomSheet> {
+  bool _agreed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.80,
+      decoration: const BoxDecoration(
+        color: Color(0xFF111111),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 14, bottom: 20),
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Icon(Icons.article_outlined, color: widget.gold, size: 20),
+                const SizedBox(width: 10),
+                "Terms & Conditions"
+                    .text
+                    .color(widget.gold)
+                    .bold
+                    .xl
+                    .make(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: "Please read carefully before creating your account."
+                .text
+                .color(Colors.white38)
+                .xs
+                .make(),
+          ),
+          const SizedBox(height: 16),
+
+          const Divider(color: Colors.white10, height: 1),
+
+          // Scrollable T&C content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  _TcSection(
+                    title: "1. Acceptance of Terms",
+                    body:
+                        "By creating an account and using our services, you agree to be bound by these Terms & Conditions. If you do not agree to these terms, please do not use our services.",
+                  ),
+                  _TcSection(
+                    title: "2. Membership & Account",
+                    body:
+                        "You must provide accurate and complete information when registering. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.",
+                  ),
+                  _TcSection(
+                    title: "3. Loyalty Points & Rewards",
+                    body:
+                        "Points earned through our partner network are subject to individual partner terms. Points have no cash value and cannot be transferred. We reserve the right to modify or discontinue the rewards programme at any time.",
+                  ),
+                  _TcSection(
+                    title: "4. Privacy & Data",
+                    body:
+                        "We collect and process your personal data in accordance with our Privacy Policy. Your data may be shared with our partner restaurants and brands to provide you with personalised rewards and offers.",
+                  ),
+                  _TcSection(
+                    title: "5. Partner Dining & Offers",
+                    body:
+                        "Offers and promotions are subject to availability and individual partner policies. We do not guarantee the availability of any specific offer. Partners may change their participation at any time.",
+                  ),
+                  _TcSection(
+                    title: "6. Prohibited Conduct",
+                    body:
+                        "You agree not to misuse our platform, engage in fraudulent activity, or attempt to exploit our rewards system. Violation of these terms may result in immediate account termination.",
+                  ),
+                  _TcSection(
+                    title: "7. Limitation of Liability",
+                    body:
+                        "To the fullest extent permitted by law, we shall not be liable for any indirect, incidental, or consequential damages arising from your use of our services.",
+                  ),
+                  _TcSection(
+                    title: "8. Amendments",
+                    body:
+                        "We reserve the right to update these terms at any time. Continued use of the app following any changes constitutes your acceptance of the new terms.",
+                  ),
+                  _TcSection(
+                    title: "9. Governing Law",
+                    body:
+                        "These terms are governed by the laws of Malaysia. Any disputes shall be subject to the exclusive jurisdiction of the courts of Malaysia.",
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const Divider(color: Colors.white10, height: 1),
+
+          // Agree checkbox + CTA
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _agreed,
+                      activeColor: widget.gold,
+                      side: const BorderSide(color: Colors.white24),
+                      onChanged: (v) => setState(() => _agreed = v!),
+                    ),
+                    Expanded(
+                      child:
+                          "I have read and agree to the Terms & Conditions"
+                              .text
+                              .white
+                              .xs
+                              .make(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _agreed ? widget.gold : Colors.white12,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _agreed
+                        ? () => Navigator.pop(context, true)
+                        : null,
+                    child: "AGREE & CONTINUE"
+                        .text
+                        .color(_agreed ? Colors.black : Colors.white38)
+                        .bold
+                        .sm
+                        .make(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: "Decline".text.color(Colors.white38).xs.make(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TcSection extends StatelessWidget {
+  final String title;
+  final String body;
+  const _TcSection({required this.title, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            body,
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 12,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Marquee Brands (unchanged)
+// ─────────────────────────────────────────────
 class MarqueeBrands extends StatefulWidget {
   final List<Map<String, String>> partners;
   const MarqueeBrands({super.key, required this.partners});
@@ -458,9 +671,6 @@ class _MarqueeBrandsState extends State<MarqueeBrands> {
         final partner = list[index];
         final String name = partner['name']!;
 
-        // --- COLOR LOGIC ---
-        // Default color is white.
-        // If name is G-SHOCK, SHISEIDO, or HOUSE OF SUNTORY, set to black.
         final bool isBlackBrand =
             name == "G-SHOCK" || name == "SHISEIDO" || name == "HOUSE";
 

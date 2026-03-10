@@ -216,14 +216,23 @@ class _MainWrapperState extends State<MainWrapper> {
         backgroundColor: Colors.black,
         elevation: 0,
         centerTitle: false,
-        title: HStack([
-          Image.asset(
-            'assets/images/4727_with_border_Logo.png',
-            height: 35, // Adjusted height to fit within an AppBar/Header row
-            fit: BoxFit.contain,
-          ),
-          _getAppBarTitle().text.color(gold).semiBold.lg.make(),
-        ]).pOnly(left: 4),
+      title: Stack(
+  alignment: Alignment.center,
+  children: [
+    // The Logo aligned to the left
+    Align(
+      alignment: Alignment.centerLeft,
+      child: Image.asset(
+        'assets/images/4727_Logo_V2.png',
+        height: 35,
+        fit: BoxFit.contain,
+      ),
+    ).pOnly(left: 4),
+    
+    // The Text perfectly in the center
+    _getAppBarTitle().text.color(gold).semiBold.lg.make(),
+  ],
+),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Divider(color: gold.withOpacity(0.5), height: 1),

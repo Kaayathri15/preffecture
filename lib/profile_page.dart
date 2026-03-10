@@ -140,8 +140,8 @@ class _ProfilePageState extends State<ProfilePage> {
       VStack([
         "Phone Number".text.gray500.size(10).make(),
         HStack([
-          code.text.color(gold).bold.make()
-              .box.p4.roundedSM.color(Colors.white.withOpacity(0.1)).make(),
+          // code.text.color(gold).bold.make()
+          //     .box.p4.roundedSM.color(Colors.white.withOpacity(0.1)).make(),
           12.widthBox,
           number.text.white.lg.semiBold.make(),
         ]),
