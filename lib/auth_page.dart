@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:preffecture/main.dart';
 import 'package:google_sign_in/google_sign_in.dart'; // New Import
 import 'package:preffecture/services/auth_service.dart';
+import 'package:preffecture/edit_profile.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -46,49 +47,57 @@ class _AuthPageState extends State<AuthPage> {
     return result == true;
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    _initializeGoogle();
+  }
+
+  Future<void> _initializeGoogle() async {
+    await _googleSignIn.initialize(
+      serverClientId:
+          "809799025977-4rnij5e580t9henqgjfp3tdj198vr57h.apps.googleusercontent.com",
+    );
+  }
+
   Future<void> _handleAuth() async {
-    // For registration: show T&C popup first
     if (!isLogin) {
       final agreed = await _showTermsBottomSheet();
-      if (!agreed) return; // User dismissed without agreeing
-
-      // Navigate immediately after agreement, regardless of API result
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainWrapper()),
-      );
-
-      // Fire API in background (won't affect navigation)
-      final Map<String, dynamic> userData = {
-        "email": _emailController.text.trim(),
-        "password": _passwordController.text.trim(),
-        "first_name": _firstNameController.text.trim(),
-        "last_name": _lastNameController.text.trim(),
-        "phone": _phoneController.text.trim(),
-        "nationality": selectedNationality,
-        "gender": selectedGender,
-        "password_confirmation": _confirmPasswordController.text.trim(),
-      };
-      AuthService.authenticate(body: userData, isLogin: false);
-      return;
+      if (!agreed) return;
     }
 
-    // Normal login flow
     VxToast.show(context, msg: "Connecting...", bgColor: gold);
-
-    final Map<String, dynamic> userData = {
-      "email": _emailController.text.trim(),
-      "password": _passwordController.text.trim(),
-    };
+    // Aligning keys with AuthController validation rules
+    final Map<String, dynamic> userData = isLogin
+        ? {
+            "email": _emailController.text.trim(),
+            "password": _passwordController.text.trim(),
+          }
+        : {
+            "first_name": _firstNameController.text.trim(),
+            "last_name": _lastNameController.text.trim(),
+            "email": _emailController.text.trim(),
+            "phone_number": _phoneController.text
+                .trim(), // Matches 'phone_number' in Controller
+            "nationality": selectedNationality,
+            "gender": selectedGender,
+            "password": _passwordController.text.trim(),
+            "password_confirmation": _confirmPasswordController.text
+                .trim(), // Required for 'confirmed' rule
+          };
 
     final result = await AuthService.authenticate(
       body: userData,
       isLogin: isLogin,
     );
 
-    if (result["success"]) {
-      VxToast.show(context, msg: "Welcome back!", bgColor: gold);
+    if (result["success"] && mounted) {
+      VxToast.show(
+        context,
+        msg: isLogin ? "Welcome back!" : "Account created!",
+        bgColor: gold,
+      );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainWrapper()),
@@ -96,48 +105,81 @@ class _AuthPageState extends State<AuthPage> {
     } else {
       VxToast.show(
         context,
-        msg: result["data"]["message"] ?? "Auth failed",
+        msg: result["data"]["message"] ?? "Authentication failed",
         bgColor: red,
       );
     }
   }
 
-  Future<void> _handleGoogleSignIn() async {
+  Future<void> _handleGoogleLogin() async {
     try {
-      final GoogleSignIn signIn = GoogleSignIn.instance;
+      final GoogleSignInAccount account = await _googleSignIn.authenticate();
+      final GoogleSignInAuthentication auth = await account.authentication;
 
-      if (await signIn.supportsAuthenticate()) {
-        await signIn.authenticate();
-      } else {
-        debugPrint("Platform does not support manual authentication.");
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        debugPrint("Google ID token is null");
         return;
       }
 
-      final event = await signIn.authenticationEvents.firstWhere(
-        (e) => e is GoogleSignInAuthenticationEventSignIn,
-      );
+      final result = await AuthService.googleLogin(token: idToken);
 
-      if (event is GoogleSignInAuthenticationEventSignIn) {
-        final auth = event.user.authentication;
-
-        final result = await AuthService.socialAuthenticate(
-          provider: "google",
-          token: auth.idToken!,
+      if (result["success"] && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainWrapper()),
         );
+      } else {
+        VxToast.show(
+          context,
+          msg: result["data"]["message"] ?? "Google login failed",
+          bgColor: red,
+        );
+      }
+    } catch (e) {
+      debugPrint("Google Login Error: $e");
+    }
+  }
 
-        if (result["success"] && mounted) {
+  Future<void> _handleGoogleRegister() async {
+    try {
+      final agreed = await _showTermsBottomSheet();
+      if (!agreed) return;
+
+      final GoogleSignInAccount account = await _googleSignIn.authenticate();
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        debugPrint("Google ID token is null");
+        return;
+      }
+
+      final result = await AuthService.googleRegister(token: idToken);
+
+      if (result["success"]) {
+        final bool profileCompleted =
+            result["data"]["profile_completed"] ?? false;
+
+        if (!profileCompleted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const MainWrapper()),
+            MaterialPageRoute(
+              builder: (_) => const EditProfilePage(isRequired: true),
+            ),
           );
         } else {
-          debugPrint("AuthService failed: ${result["data"]}");
+          VxToast.show(
+            context,
+            msg: result["data"]["message"] ?? "Google login failed",
+            bgColor: red,
+          );
         }
       }
-    } on GoogleSignInException catch (e) {
-      debugPrint("Google Sign-In Exception: ${e.code}");
     } catch (e) {
-      debugPrint("General Error: $e");
+      debugPrint("Google Register Error: $e");
     }
   }
 
@@ -178,12 +220,35 @@ class _AuthPageState extends State<AuthPage> {
                   24.heightBox,
                   "OR CONTINUE WITH".text.gray600.xs.bold.makeCentered(),
                   20.heightBox,
-                  _socialBtn(
-                    FontAwesomeIcons.google,
-                    Colors.white,
-                    onTap: _handleGoogleSignIn,
-                  ).centered(),
-                  40.heightBox,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      /// GOOGLE LOGIN
+                      isLogin
+                          ? Column(
+                              children: [
+                                _socialBtn(
+                                  FontAwesomeIcons.google,
+                                  Colors.white,
+                                  onTap: _handleGoogleLogin,
+                                ),
+                                6.heightBox,
+                                "Login with Google".text.gray400.xs.make(),
+                              ],
+                            ).centered()
+                          : Column(
+                              children: [
+                                _socialBtn(
+                                  FontAwesomeIcons.google,
+                                  Colors.white,
+                                  onTap: _handleGoogleRegister,
+                                ),
+                                6.heightBox,
+                                "Sign Up with Google".text.gray400.xs.make(),
+                              ],
+                            ).centered(),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -261,17 +326,6 @@ class _AuthPageState extends State<AuthPage> {
       isPass: true,
     ),
     10.heightBox,
-    // Row(
-    //   children: [
-    //     Checkbox(
-    //       value: termsAccepted,
-    //       activeColor: gold,
-    //       side: const BorderSide(color: Colors.white24),
-    //       onChanged: (v) => setState(() => termsAccepted = v!),
-    //     ),
-    //     "I agree to Terms & Conditions".text.white.xs.make(),
-    //   ],
-    // ),
   ];
 
   Widget _buildGradientHeader() => Container(
@@ -435,20 +489,14 @@ class _TermsBottomSheetState extends State<_TermsBottomSheet> {
               children: [
                 Icon(Icons.article_outlined, color: widget.gold, size: 20),
                 const SizedBox(width: 10),
-                "Terms & Conditions"
-                    .text
-                    .color(widget.gold)
-                    .bold
-                    .xl
-                    .make(),
+                "Terms & Conditions".text.color(widget.gold).bold.xl.make(),
               ],
             ),
           ),
           const SizedBox(height: 4),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: "Please read carefully before creating your account."
-                .text
+            child: "Please read carefully before creating your account.".text
                 .color(Colors.white38)
                 .xs
                 .make(),
@@ -458,12 +506,12 @@ class _TermsBottomSheetState extends State<_TermsBottomSheet> {
           const Divider(color: Colors.white10, height: 1),
 
           // Scrollable T&C content
-          Expanded(
+          const Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   _TcSection(
                     title: "1. Acceptance of Terms",
                     body:
@@ -530,12 +578,11 @@ class _TermsBottomSheetState extends State<_TermsBottomSheet> {
                       onChanged: (v) => setState(() => _agreed = v!),
                     ),
                     Expanded(
-                      child:
-                          "I have read and agree to the Terms & Conditions"
-                              .text
-                              .white
-                              .xs
-                              .make(),
+                      child: "I have read and agree to the Terms & Conditions"
+                          .text
+                          .white
+                          .xs
+                          .make(),
                     ),
                   ],
                 ),
@@ -545,8 +592,7 @@ class _TermsBottomSheetState extends State<_TermsBottomSheet> {
                   height: 52,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          _agreed ? widget.gold : Colors.white12,
+                      backgroundColor: _agreed ? widget.gold : Colors.white12,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -554,8 +600,7 @@ class _TermsBottomSheetState extends State<_TermsBottomSheet> {
                     onPressed: _agreed
                         ? () => Navigator.pop(context, true)
                         : null,
-                    child: "AGREE & CONTINUE"
-                        .text
+                    child: "AGREE & CONTINUE".text
                         .color(_agreed ? Colors.black : Colors.white38)
                         .bold
                         .sm

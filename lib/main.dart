@@ -31,11 +31,8 @@ class HttpClientFactory {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  
-  // Initialize Google Sign-In instance once
-  await GoogleSignIn.instance.initialize(
-    clientId: '219809423044-7asg67osf9cc1qapvbqi4en1tg0ljuqr.apps.googleusercontent.com', // From your GoogleService-Info.plist/Console
-  );
+ 
+ 
   
   runApp(const PrefectureApp());
 }
